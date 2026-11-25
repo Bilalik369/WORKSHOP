@@ -3,6 +3,9 @@
 -- À exécuter une seule fois dans Supabase → SQL Editor.
 -- =====================================================================
 
+-- citext : e-mails insensibles à la casse. Selon le projet Supabase, l'extension
+-- se trouve dans le schéma « public » ou « extensions » : les fonctions ci-dessous
+-- cherchent dans les deux.
 create extension if not exists citext;
 
 -- ---------------------------------------------------------------------
@@ -138,7 +141,7 @@ returns integer
 language sql
 stable
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
   select greatest(0, coalesce(
     (select nullif(trim(value), '')::integer from settings where key = 'capacity'),
@@ -152,7 +155,7 @@ returns jsonb
 language plpgsql
 stable
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_capacity integer := effective_capacity(p_default_capacity);
@@ -179,7 +182,7 @@ returns text
 language plpgsql
 volatile
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_alphabet constant text := 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
@@ -213,7 +216,7 @@ create or replace function public.reserve_seat(
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_capacity integer;
@@ -265,7 +268,7 @@ create or replace function public.promote_waitlist(p_default_capacity integer)
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_capacity integer;
@@ -305,7 +308,7 @@ create or replace function public.cancel_reservation(
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_row reservations;
@@ -340,7 +343,7 @@ create or replace function public.check_in(p_code text)
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_row reservations;
@@ -377,7 +380,7 @@ create or replace function public.submit_project(p_project jsonb, p_members text
 returns jsonb
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_row projects;
@@ -431,7 +434,7 @@ create or replace function public.check_rate_limit(
 returns boolean
 language plpgsql
 security definer
-set search_path = public
+set search_path = public, extensions
 as $$
 declare
   v_window timestamptz := to_timestamp(

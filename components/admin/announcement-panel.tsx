@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog } from "radix-ui";
 import { CircleCheckBig, FlaskConical, LoaderCircle, Megaphone, TriangleAlert, X } from "lucide-react";
-import { sendDateChangeBatch, sendDateChangeTest } from "@/app/admin/actions";
+import { sendDateChangeNext, sendDateChangeTest } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import { FormAlert } from "@/components/ui/form";
 
@@ -17,8 +17,14 @@ type Stats = {
 
 type Progress = { sent: number; failed: number; remaining: number; error?: string };
 
-/** Nombre maximal de lots enchaînés par clic (sécurité contre une boucle sans fin). */
-const MAX_BATCHES = 40;
+/** Pause entre deux e-mails, pour respecter les limites d'envoi de Gmail. */
+const PAUSE_MS = 1000;
+/** Après autant d'échecs d'affilée, on s'arrête (identifiants ou quota Gmail en cause). */
+const MAX_CONSECUTIVE_FAILURES = 3;
+/** Garde-fou : nombre maximal d'e-mails par série. */
+const MAX_EMAILS_PER_RUN = 1000;
+
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function EmailPreview({ html, subject }: { html: string; subject: string }) {
   return (
@@ -75,24 +81,45 @@ export function AnnouncementPanel({
     }
   };
 
-  /** Enchaîne les lots de 50 jusqu'à épuisement, et s'arrête au premier lot en échec. */
+  /**
+   * Envoie les e-mails un par un, avec une pause entre chacun. Une personne
+   * n'est marquée « prévenue » qu'après un envoi réussi ; les échecs sont mis
+   * de côté pour cette série et pourront être relancés.
+   */
   const sendAll = async () => {
     setSending(true);
     const total: Progress = { sent: 0, failed: 0, remaining: stats.pending };
+    const failedIds: string[] = [];
+    let consecutiveFailures = 0;
     setProgress(total);
     try {
-      for (let batch = 0; batch < MAX_BATCHES; batch += 1) {
-        const result = await sendDateChangeBatch();
-        total.sent += result.sent;
-        total.failed += result.failed;
-        total.remaining = result.remaining;
-        total.error = result.error;
+      for (let index = 0; index < MAX_EMAILS_PER_RUN; index += 1) {
+        const step = await sendDateChangeNext(failedIds);
+        if (step.outcome === "done") {
+          total.remaining = failedIds.length;
+          setProgress({ ...total });
+          break;
+        }
+        if (step.outcome === "sent") {
+          total.sent += 1;
+          consecutiveFailures = 0;
+        } else {
+          total.failed += 1;
+          total.error = step.error;
+          consecutiveFailures += 1;
+          if (step.id) failedIds.push(step.id);
+        }
+        total.remaining = step.remaining + failedIds.length;
         setProgress({ ...total });
-        if (result.error || result.failed > 0 || result.remaining === 0) break;
-        if (result.sent === 0) break;
+        // Sans identifiant, l'échec est général (configuration) : inutile d'insister.
+        if (step.outcome === "failed" && !step.id) break;
+        if (consecutiveFailures >= MAX_CONSECUTIVE_FAILURES) break;
+        if (step.remaining === 0) break;
+        await wait(PAUSE_MS);
       }
     } catch {
-      total.error = "Connexion interrompue. Relancez l’envoi : les personnes déjà prévenues seront ignorées.";
+      total.error =
+        "Connexion interrompue. Relancez l’envoi : les personnes déjà prévenues seront ignorées.";
       setProgress({ ...total });
     } finally {
       setSending(false);
@@ -126,8 +153,8 @@ export function AnnouncementPanel({
         {!emailConfigured ? (
           <div className="mt-4">
             <FormAlert>
-              Les e-mails ne sont pas configurés : renseignez <code>RESEND_API_KEY</code> et{" "}
-              <code>EMAIL_FROM</code>, puis redéployez.
+              Les e-mails ne sont pas configurés : renseignez <code>GMAIL_USER</code> et{" "}
+              <code>GMAIL_APP_PASSWORD</code>, puis redéployez.
             </FormAlert>
           </div>
         ) : null}
@@ -163,7 +190,8 @@ export function AnnouncementPanel({
           <h2 className="text-lg font-bold">2. Envoyer à tous les inscrits</h2>
           <p className="mt-1 text-[0.95rem] leading-relaxed">
             Réservations confirmées et liste d’attente uniquement. Les réservations annulées et
-            les personnes déjà prévenues sont ignorées.
+            les personnes déjà prévenues sont ignorées. Les e-mails partent un par un (environ
+            une seconde entre deux envois) : gardez cette page ouverte jusqu’à la fin.
           </p>
 
           <Dialog.Root open={open} onOpenChange={(next) => !sending && setOpen(next)}>
@@ -215,7 +243,7 @@ export function AnnouncementPanel({
                     {sending ? (
                       <>
                         <LoaderCircle aria-hidden="true" className="animate-spin" />
-                        Envoi… {progress ? `${progress.sent} envoyé(s)` : ""}
+                        Envoi… {progress ? `${progress.sent} / ${stats.pending}` : ""}
                       </>
                     ) : (
                       <>
@@ -261,8 +289,8 @@ export function AnnouncementPanel({
               </ul>
               {progress.error ? (
                 <p className="mt-2 text-sm break-words text-rose-700">
-                  Détail : {progress.error} Vous pouvez relancer l’envoi : seules les personnes
-                  non prévenues seront concernées.
+                  Dernière erreur : {progress.error} Vous pouvez relancer l’envoi : seules les
+                  personnes non prévenues seront concernées.
                 </p>
               ) : null}
             </div>

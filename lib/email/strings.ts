@@ -85,8 +85,9 @@ export const emailStrings = {
         "Votre inscription sur la liste d’attente reste valable, avec le même code. Dès qu’une place se libère, vous recevez votre billet par e-mail.",
       button: "Afficher mon billet",
       buttonWaitlist: "Suivre mon inscription",
-      calendarIntro: "Pensez à mettre à jour votre agenda :",
-      calendarLink: "télécharger le fichier agenda mis à jour (.ics)",
+      calendarIntro:
+        "Le fichier joint « workshop.ics » met à jour l’événement dans votre agenda. Vous pouvez aussi",
+      calendarLink: "le télécharger ici",
       cancelIntro:
         "Cette nouvelle date ne vous convient pas ? Libérez votre place pour une autre personne :",
       cancelLink: "Annuler ma réservation",
@@ -176,8 +177,8 @@ export const emailStrings = {
         "تسجيلك في لائحة الانتظار يبقى صالحًا بالرمز نفسه. فور شغور مقعد ستتوصل بتذكرتك بالبريد الإلكتروني.",
       button: "عرض تذكرتي",
       buttonWaitlist: "متابعة تسجيلي",
-      calendarIntro: "لا تنسَ تحديث يوميتك:",
-      calendarLink: "تحميل ملف اليومية المحدَّث (.ics)",
+      calendarIntro: "الملف المرفق «workshop.ics» يحدّث الموعد في يوميتك. يمكنك أيضًا",
+      calendarLink: "تحميله من هنا",
       cancelIntro: "التاريخ الجديد لا يناسبك؟ حرّر مقعدك لفائدة شخص آخر:",
       cancelLink: "إلغاء الحجز",
       apology: "نعتذر عن هذا التغيير ونشكرك على تفهّمك.",

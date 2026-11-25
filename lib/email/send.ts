@@ -1,5 +1,5 @@
 import "server-only";
-import { Resend } from "resend";
+import nodemailer, { type Transporter } from "nodemailer";
 import { site } from "@/data/site";
 
 export type EmailAttachment = {
@@ -18,45 +18,100 @@ export type EmailMessage = {
   attachments?: EmailAttachment[];
 };
 
+export type SendResult = { sent: boolean; error?: string };
+
+/** Nom affiché comme expéditeur : « Workshop IA & Éducation <GMAIL_USER> ». */
+const SENDER_NAME = "Workshop IA & Éducation";
+
+/** Les mots de passe d'application Google s'affichent avec des espaces : on les retire. */
+function credentials(): { user: string; pass: string } | null {
+  const user = process.env.GMAIL_USER?.trim();
+  const pass = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, "");
+  return user && pass ? { user, pass } : null;
+}
+
 export function isEmailConfigured(): boolean {
-  return Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM);
+  return credentials() !== null;
+}
+
+let transporter: Transporter | null = null;
+let transporterUser: string | null = null;
+
+/** Connexion SMTP à Gmail (smtp.gmail.com, port 465, TLS), réutilisée entre les envois. */
+function getTransporter(auth: { user: string; pass: string }): Transporter {
+  if (!transporter || transporterUser !== auth.user) {
+    transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth,
+      connectionTimeout: 15_000,
+      greetingTimeout: 15_000,
+      socketTimeout: 30_000,
+    });
+    transporterUser = auth.user;
+  }
+  return transporter;
 }
 
 /**
- * Envoie un e-mail via Resend. Ne lève jamais d'erreur : un e-mail en échec
- * ne doit pas faire échouer une réservation déjà enregistrée.
+ * Envoie un e-mail via Gmail (Nodemailer). Ne lève jamais d'erreur : un
+ * e-mail en échec ne doit pas faire échouer une réservation déjà enregistrée.
+ * Le résultat indique si l'envoi a réussi.
  */
-export async function sendEmail(message: EmailMessage): Promise<{ sent: boolean }> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
+export async function sendEmail(message: EmailMessage): Promise<SendResult> {
+  const auth = credentials();
 
-  if (!apiKey || !from) {
-    console.info(`[email] Resend non configuré — « ${message.subject} » non envoyé.`);
-    return { sent: false };
+  if (!auth) {
+    console.info(`[email] Gmail non configuré — « ${message.subject} » non envoyé.`);
+    return { sent: false, error: "Gmail n’est pas configuré." };
   }
 
+  const replyTo =
+    site.contactEmail.includes("example.com") || site.contactEmail === auth.user
+      ? undefined
+      : site.contactEmail;
+
   try {
-    const { error } = await new Resend(apiKey).emails.send({
-      from,
+    const info = await getTransporter(auth).sendMail({
+      from: { name: SENDER_NAME, address: auth.user },
       to: message.to,
+      replyTo,
       subject: message.subject,
       html: message.html,
       text: message.text,
-      replyTo: site.contactEmail.includes("example.com") ? undefined : site.contactEmail,
       attachments: message.attachments?.map((attachment) => ({
         filename: attachment.filename,
         content: attachment.content,
         contentType: attachment.contentType,
-        contentId: attachment.contentId,
+        cid: attachment.contentId,
       })),
     });
-    if (error) {
-      console.error(`[email] Échec de l'envoi (« ${message.subject} ») :`, error.message);
-      return { sent: false };
+
+    const rejected = info.rejected ?? [];
+    if (rejected.length > 0) {
+      const reason = `Adresse refusée : ${rejected.join(", ")}`;
+      console.error(`[email] « ${message.subject} » — ${reason}`);
+      return { sent: false, error: reason };
     }
     return { sent: true };
   } catch (error) {
-    console.error(`[email] Échec de l'envoi (« ${message.subject} ») :`, error);
-    return { sent: false };
+    const reason = error instanceof Error ? error.message : "Erreur inconnue.";
+    console.error(`[email] Échec de l'envoi (« ${message.subject} ») : ${reason}`);
+    return { sent: false, error: explainSmtpError(reason) };
   }
+}
+
+/** Traduit les erreurs Gmail les plus courantes en message utile. */
+function explainSmtpError(reason: string): string {
+  if (/535|Username and Password not accepted|Invalid login/i.test(reason)) {
+    return "Gmail a refusé la connexion : vérifiez GMAIL_USER et GMAIL_APP_PASSWORD (mot de passe d’application à 16 caractères).";
+  }
+  if (/550 5\.4\.5|Daily user sending (quota|limit)|limit exceeded/i.test(reason)) {
+    return "Limite d’envoi quotidienne de Gmail atteinte. Réessayez dans 24 heures.";
+  }
+  if (/ETIMEDOUT|ECONNRESET|ENOTFOUND|ECONNREFUSED|timeout/i.test(reason)) {
+    return "Connexion à Gmail impossible (réseau). Réessayez dans un instant.";
+  }
+  return reason;
 }

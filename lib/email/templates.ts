@@ -291,8 +291,8 @@ export function projectDecisionEmail(project: Project): EmailMessage {
 
 /**
  * Annonce du changement de date, pour les réservations confirmées et la
- * liste d'attente. Sans pièce jointe (l'envoi groupé de Resend ne les
- * accepte pas) : le fichier agenda mis à jour est proposé par un lien.
+ * liste d'attente. Le fichier agenda mis à jour (.ics) est joint à
+ * l'e-mail, et proposé aussi par un lien de secours.
  */
 export function dateChangeEmail(reservation: Reservation): EmailMessage {
   const lang = langOf(reservation.locale);
@@ -342,5 +342,6 @@ export function dateChangeEmail(reservation: Reservation): EmailMessage {
       copy.apology,
       `${copy.cancelLink} : ${cancelUrl}`,
     ].join("\n\n"),
+    attachments: [icsAttachment(lang)],
   };
 }

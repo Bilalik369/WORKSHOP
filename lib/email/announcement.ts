@@ -1,13 +1,8 @@
 import "server-only";
-import { Resend } from "resend";
-import { site } from "@/data/site";
 import type { Reservation } from "@/lib/types";
 import { createAdminClient } from "@/utils/supabase/admin";
-import { isEmailConfigured } from "./send";
+import { isEmailConfigured, sendEmail } from "./send";
 import { dateChangeEmail } from "./templates";
-
-/** Taille d'un lot : un appel à l'API « batch » de Resend (100 e-mails au maximum). */
-export const ANNOUNCEMENT_BATCH_SIZE = 50;
 
 export type AnnouncementStats = {
   /** La colonne date_change_notified_at existe-t-elle ? */
@@ -20,6 +15,8 @@ export type AnnouncementStats = {
   notified: number;
   emailConfigured: boolean;
 };
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /** Compte les destinataires (jamais les réservations annulées). */
 export async function getAnnouncementStats(): Promise<AnnouncementStats> {
@@ -69,104 +66,86 @@ export async function getAnnouncementStats(): Promise<AnnouncementStats> {
   };
 }
 
-export type BatchResult = { sent: number; failed: number; remaining: number; error?: string };
+export type AnnouncementStep = {
+  /** "sent" : envoyé et marqué · "failed" : échec, non marqué · "done" : plus personne à prévenir. */
+  outcome: "sent" | "failed" | "done";
+  /** Réservation traitée (pour l'ignorer jusqu'à la fin de cette série en cas d'échec). */
+  id?: string;
+  /** Destinataires restant à prévenir après cette étape (hors échecs de la série). */
+  remaining: number;
+  error?: string;
+};
 
 /**
- * Envoie UN lot de l'annonce.
+ * Envoie l'annonce à UNE personne : la plus ancienne inscription pas encore
+ * prévenue (confirmée ou en liste d'attente, jamais annulée).
  *
- * Pour qu'une personne ne reçoive jamais l'e-mail deux fois (double clic,
- * deux organisateurs en même temps), les lignes sont d'abord « réservées »
- * en base (date_change_notified_at renseignée), puis l'envoi a lieu. Si
- * l'envoi échoue, la réservation des lignes est annulée pour pouvoir
- * réessayer.
+ * La date `date_change_notified_at` n'est enregistrée QU'APRÈS un envoi
+ * réussi : un échec laisse la personne « à prévenir » et peut être rejoué
+ * sans risque de doublon.
+ *
+ * `skipIds` : réservations déjà en échec pendant cette série, à ne pas
+ * retenter tout de suite (sinon la série resterait bloquée sur elles).
  */
-export async function sendAnnouncementBatch(): Promise<BatchResult> {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM;
-  if (!apiKey || !from) {
-    return { sent: 0, failed: 0, remaining: 0, error: "Resend n’est pas configuré." };
+export async function sendNextAnnouncement(skipIds: string[]): Promise<AnnouncementStep> {
+  if (!isEmailConfigured()) {
+    return { outcome: "failed", remaining: 0, error: "Gmail n’est pas configuré." };
   }
 
   const supabase = createAdminClient();
+  const skip = skipIds.filter((id) => UUID.test(id)).slice(0, 500);
 
-  // 1. Prochaines personnes à prévenir (les plus anciennes inscriptions d'abord).
-  const { data: candidates, error: selectError } = await supabase
-    .from("reservations")
-    .select("id")
-    .in("status", ["confirmed", "waitlist"])
-    .is("date_change_notified_at", null)
+  const pendingQuery = () => {
+    const query = supabase
+      .from("reservations")
+      .select("*", { count: "exact" })
+      .in("status", ["confirmed", "waitlist"])
+      .is("date_change_notified_at", null);
+    return skip.length > 0 ? query.not("id", "in", `(${skip.join(",")})`) : query;
+  };
+
+  const { data, count, error } = await pendingQuery()
     .order("created_at", { ascending: true })
-    .limit(ANNOUNCEMENT_BATCH_SIZE);
-
-  if (selectError) return { sent: 0, failed: 0, remaining: 0, error: selectError.message };
-  if (!candidates || candidates.length === 0) return { sent: 0, failed: 0, remaining: 0 };
-
-  // 2. Réservation atomique des lignes : seules celles encore « non prévenues » sont prises.
-  const { data: claimed, error: claimError } = await supabase
-    .from("reservations")
-    .update({ date_change_notified_at: new Date().toISOString() })
-    .in(
-      "id",
-      candidates.map((row) => row.id),
-    )
-    .in("status", ["confirmed", "waitlist"])
-    .is("date_change_notified_at", null)
-    .select("*");
-
-  if (claimError) return { sent: 0, failed: 0, remaining: 0, error: claimError.message };
-  const recipients = (claimed ?? []) as Reservation[];
-
-  let sent = 0;
-  let failed = 0;
-  let errorMessage: string | undefined;
-
-  if (recipients.length > 0) {
-    const replyTo = site.contactEmail.includes("example.com") ? undefined : site.contactEmail;
-    const payload = recipients.map((reservation) => {
-      const message = dateChangeEmail(reservation);
-      return {
-        from,
-        to: message.to,
-        subject: message.subject,
-        html: message.html,
-        text: message.text,
-        replyTo,
-      };
-    });
-
-    let failedIds: string[] = [];
-    try {
-      const { data, error } = await new Resend(apiKey).batch.send(payload);
-      if (error || !data) {
-        // Mode strict : tout le lot est refusé.
-        failedIds = recipients.map((reservation) => reservation.id);
-        errorMessage = error?.message ?? "Envoi refusé par Resend.";
-      } else {
-        sent = recipients.length;
-      }
-    } catch (error) {
-      failedIds = recipients.map((reservation) => reservation.id);
-      errorMessage = error instanceof Error ? error.message : "Erreur réseau.";
-    }
-
-    // 3. Échec : on libère les lignes pour un nouvel essai.
-    if (failedIds.length > 0) {
-      failed = failedIds.length;
-      await supabase
-        .from("reservations")
-        .update({ date_change_notified_at: null })
-        .in("id", failedIds);
-    }
-  }
-
-  const { count } = await supabase
-    .from("reservations")
-    .select("id", { count: "exact", head: false })
-    .in("status", ["confirmed", "waitlist"])
-    .is("date_change_notified_at", null)
     .limit(1);
 
-  return { sent, failed, remaining: count ?? 0, error: errorMessage };
+  if (error) return { outcome: "failed", remaining: 0, error: error.message };
+
+  const reservation = (data?.[0] ?? null) as Reservation | null;
+  if (!reservation) return { outcome: "done", remaining: 0 };
+
+  const total = count ?? 1;
+  const result = await sendEmail(dateChangeEmail(reservation));
+
+  if (!result.sent) {
+    // Non marquée : elle sera proposée de nouveau au prochain envoi.
+    return {
+      outcome: "failed",
+      id: reservation.id,
+      remaining: Math.max(0, total - 1),
+      error: result.error,
+    };
+  }
+
+  // Envoi réussi : on enregistre la date. La condition « is null » évite
+  // d'écraser une date posée entre-temps par un autre organisateur.
+  const { error: markError } = await supabase
+    .from("reservations")
+    .update({ date_change_notified_at: new Date().toISOString() })
+    .eq("id", reservation.id)
+    .is("date_change_notified_at", null);
+
+  if (markError) {
+    // L'e-mail est parti mais n'a pas pu être noté : on l'ignore pour cette
+    // série afin de ne pas le renvoyer en boucle, et on le signale.
+    return {
+      outcome: "failed",
+      id: reservation.id,
+      remaining: Math.max(0, total - 1),
+      error: `E-mail envoyé à ${reservation.email}, mais non enregistré en base (${markError.message}). Ne relancez pas avant d’avoir vérifié.`,
+    };
+  }
+
+  return { outcome: "sent", id: reservation.id, remaining: Math.max(0, total - 1) };
 }
 
 /** Réservation fictive pour l'aperçu et l'e-mail de test. */

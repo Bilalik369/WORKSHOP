@@ -6,8 +6,8 @@ import { assertAdmin } from "@/lib/admin/auth";
 import { notifyCancellation, notifyPromoted } from "@/lib/email/notify";
 import {
   sampleReservation,
-  sendAnnouncementBatch,
-  type BatchResult,
+  sendNextAnnouncement,
+  type AnnouncementStep,
 } from "@/lib/email/announcement";
 import { isEmailConfigured, sendEmail } from "@/lib/email/send";
 import { dateChangeEmail, projectDecisionEmail } from "@/lib/email/templates";
@@ -197,24 +197,25 @@ export async function decideProject(
 export async function sendDateChangeTest(): Promise<Result> {
   const admin = await assertAdmin();
   if (!isEmailConfigured()) {
-    return { ok: false, error: "Resend n’est pas configuré (RESEND_API_KEY et EMAIL_FROM)." };
+    return { ok: false, error: "Gmail n’est pas configuré (GMAIL_USER et GMAIL_APP_PASSWORD)." };
   }
   const message = dateChangeEmail(sampleReservation(admin, "confirmed"));
-  const { sent } = await sendEmail({ ...message, subject: `[TEST] ${message.subject}` });
-  return sent
+  const result = await sendEmail({ ...message, subject: `[TEST] ${message.subject}` });
+  return result.sent
     ? { ok: true }
-    : { ok: false, error: "L’envoi a échoué. Vérifiez la clé Resend et l’expéditeur (voir Resend → Logs)." };
+    : { ok: false, error: result.error ?? "L’envoi a échoué." };
 }
 
 /**
- * Envoie UN lot de l'annonce (50 personnes) aux réservations confirmées
- * et en liste d'attente qui ne l'ont pas encore reçue. L'interface
- * rappelle cette action tant qu'il reste des destinataires.
+ * Envoie l'annonce à UNE personne (la prochaine à prévenir) et l'enregistre
+ * comme prévenue seulement si l'envoi a réussi. L'interface rappelle cette
+ * action en boucle, avec une pause d'environ une seconde entre deux e-mails
+ * pour respecter les limites de Gmail.
  * Ne se déclenche jamais seule : uniquement par le bouton de l'administration.
  */
-export async function sendDateChangeBatch(): Promise<BatchResult> {
+export async function sendDateChangeNext(skipIds: string[]): Promise<AnnouncementStep> {
   await assertAdmin();
-  const result = await sendAnnouncementBatch();
-  revalidatePath("/admin", "layout");
-  return result;
+  const step = await sendNextAnnouncement(Array.isArray(skipIds) ? skipIds.map(String) : []);
+  if (step.outcome !== "sent") revalidatePath("/admin", "layout");
+  return step;
 }

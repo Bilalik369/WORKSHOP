@@ -19,7 +19,7 @@ Le site propose :
 1. [Technologies](#technologies)
 2. [Installation en local](#installation-en-local)
 3. [Configurer Supabase](#configurer-supabase)
-4. [Configurer les e-mails (Resend)](#configurer-les-e-mails-resend)
+4. [Configurer les e-mails (Gmail)](#configurer-les-e-mails-gmail)
 5. [Variables d’environnement](#variables-denvironnement)
 6. [Déployer sur Vercel](#déployer-sur-vercel)
 7. [Modifier le contenu](#modifier-le-contenu)
@@ -41,7 +41,7 @@ Le site propose :
 | Icônes | lucide-react |
 | Langues | next-intl (`fr` par défaut, arabe sous `/ar`) |
 | Base de données, fichiers, connexion admin | Supabase (Postgres, Storage, Auth) |
-| E-mails | Resend |
+| E-mails | Gmail (SMTP) avec Nodemailer |
 | Formulaires | react-hook-form + Zod (validation client **et** serveur) |
 | Hébergement | Vercel (fonctions en région `dub1`, Dublin, au plus près de la base) |
 
@@ -129,18 +129,36 @@ Dans **Authentication → Sign In / Providers**, désactivez **Allow new users t
 
 ---
 
-## Configurer les e-mails (Resend)
+## Configurer les e-mails (Gmail)
 
-Les e-mails envoyés par le site : billet avec QR code et fichier agenda, liste d’attente, place libérée, annulation, accusé de réception d’un projet, décision du comité.
+Les e-mails envoyés par le site : billet avec QR code et fichier agenda, liste d’attente, place libérée, annulation, accusé de réception d’un projet, décision du comité, annonce d’un changement de date.
 
-1. Créez un compte sur <https://resend.com>.
-2. **Domains → Add Domain** : ajoutez votre domaine et les enregistrements DNS indiqués, puis attendez la vérification.
-3. **API Keys → Create API Key** → `RESEND_API_KEY`.
-4. Renseignez `EMAIL_FROM`, par exemple `Workshop IA & Éducation <workshop@votre-domaine.ma>`.
+Ils partent d’une **adresse Gmail**, par SMTP (`smtp.gmail.com`, port 465, connexion chiffrée), avec la bibliothèque Nodemailer. L’expéditeur affiché est « Workshop IA & Éducation <votre adresse Gmail> ».
 
-> Sans domaine vérifié, Resend n’autorise l’envoi qu’à votre propre adresse (expéditeur `onboarding@resend.dev`) : pratique pour tester, insuffisant pour l’événement.
+### Créer un mot de passe d’application Google
 
-Si `RESEND_API_KEY` ou `EMAIL_FROM` est vide, le site fonctionne normalement mais **aucun e-mail n’est envoyé** : le billet reste accessible sur la page de confirmation.
+Google n’accepte pas le mot de passe habituel du compte pour ce type d’envoi : il faut un **mot de passe d’application**, réservé au site.
+
+1. Connectez-vous au compte Gmail qui enverra les e-mails.
+2. Activez la **validation en deux étapes** si ce n’est pas fait : <https://myaccount.google.com/security> → « Validation en deux étapes ». C’est obligatoire pour la suite.
+3. Ouvrez <https://myaccount.google.com/apppasswords>.
+4. Donnez un nom (par exemple « Site workshop ») et cliquez sur **Créer**.
+5. Google affiche un mot de passe de **16 caractères** (du type `abcd efgh ijkl mnop`). Copiez-le tout de suite : il ne sera plus affiché.
+6. Renseignez les deux variables :
+   - `GMAIL_USER` : l’adresse Gmail complète ;
+   - `GMAIL_APP_PASSWORD` : les 16 caractères (avec ou sans espaces).
+
+> ⚠️ Ce mot de passe permet d’envoyer des e-mails au nom du compte. Ne le mettez que dans `.env.local` et dans les variables d’environnement de Vercel. S’il fuit, supprimez-le sur la page des mots de passe d’application et créez-en un nouveau.
+
+Si la page des mots de passe d’application est indisponible, c’est que la validation en deux étapes n’est pas activée, ou que le compte est géré par une organisation qui l’interdit.
+
+### Limites de Gmail à connaître
+
+- Un compte Gmail gratuit peut envoyer environ **500 e-mails par jour** (davantage avec Google Workspace). C’est suffisant pour ce workshop, mais évitez les envois de masse répétés le même jour.
+- L’annonce d’un changement de date part donc **un e-mail à la fois**, avec environ une seconde de pause entre deux envois.
+- Les e-mails envoyés apparaissent dans le dossier « Messages envoyés » du compte : pratique pour vérifier ce qui est parti.
+
+Si `GMAIL_USER` ou `GMAIL_APP_PASSWORD` est vide, le site fonctionne normalement mais **aucun e-mail n’est envoyé** : le billet reste accessible sur la page de confirmation.
 
 ---
 
@@ -157,8 +175,8 @@ Toutes les variables sont décrites dans [`.env.example`](.env.example).
 | `ADMIN_EMAILS` | oui | Adresses autorisées dans `/admin`, séparées par des virgules |
 | `EVENT_CAPACITY` | non (150) | Nombre total de places |
 | `PROJECT_SUBMISSION_DEADLINE` | non (20 décembre 2026) | Date limite de dépôt des projets, format ISO (`2026-12-20T23:59:59+01:00`) |
-| `RESEND_API_KEY` | pour les e-mails | Clé Resend |
-| `EMAIL_FROM` | pour les e-mails | Expéditeur des e-mails |
+| `GMAIL_USER` | pour les e-mails | Adresse Gmail qui envoie les e-mails |
+| `GMAIL_APP_PASSWORD` | pour les e-mails | Mot de passe d’application Google (16 caractères) |
 | `NEXT_PUBLIC_CONTACT_EMAIL` | recommandé | Adresse de contact affichée sur le site |
 
 **Changer la capacité ou la date limite sans redéployer** : dans Supabase, **Table Editor → settings**, renseignez la colonne `value` de la ligne `capacity` (ex. `180`) ou `submission_deadline`. Une valeur vide redonne la main à la variable d’environnement. Si vous augmentez la capacité alors qu’il y a une liste d’attente, cliquez ensuite sur **Attribuer les places libres** dans l’administration.
@@ -222,14 +240,14 @@ Seuls les projets **acceptés** apparaissent dans la section « Projets » du si
 
 ### Annoncer un changement de date
 
-L’onglet **Annonce** envoie un e-mail aux réservations **confirmées** et en **liste d’attente** (jamais aux réservations annulées). L’e-mail rappelle la nouvelle date, précise que la réservation reste valable (même code, même billet), et contient le lien du billet, le lien du fichier agenda mis à jour et le lien d’annulation.
+L’onglet **Annonce** envoie un e-mail aux réservations **confirmées** et en **liste d’attente** (jamais aux réservations annulées). L’e-mail rappelle la nouvelle date, précise que la réservation reste valable (même code, même billet), et contient le lien du billet, le fichier agenda mis à jour en pièce jointe et le lien d’annulation.
 
 Avant la première utilisation, exécutez une fois [`supabase/migrations/0002_date_change_notification.sql`](supabase/migrations/0002_date_change_notification.sql) dans l’éditeur SQL de Supabase (il ajoute la colonne `date_change_notified_at`). Les nouvelles installations l’ont déjà via `supabase/setup.sql`.
 
 1. **M’envoyer un test** : l’e-mail part uniquement vers votre adresse, avec des données d’exemple.
 2. **Envoyer l’annonce du changement de date** : une fenêtre affiche le nombre de destinataires et l’aperçu de l’e-mail, puis demande confirmation.
 
-L’envoi se fait par lots de 50 (API « batch » de Resend). Chaque personne prévenue est marquée en base : si vous relancez l’envoi, elle est ignorée. Un lot en échec n’est pas marqué et peut être renvoyé. Rien n’est jamais envoyé automatiquement, ni au déploiement ni autrement.
+Les e-mails partent **un par un**, avec environ une seconde de pause entre deux envois (limites de Gmail) : gardez la page ouverte jusqu’à la fin. Une personne n’est marquée « prévenue » en base **qu’après** l’envoi réussi de son e-mail ; un échec la laisse « à prévenir ». Vous pouvez donc relancer l’envoi sans risque de doublon : seules les personnes non prévenues sont concernées. L’envoi s’arrête de lui-même après trois échecs d’affilée (identifiants ou quota Gmail à vérifier), et la page affiche le bilan : envoyés, en échec, restants. Rien n’est jamais envoyé automatiquement, ni au déploiement ni autrement.
 
 ---
 
@@ -306,7 +324,8 @@ proxy.ts                    Routage des langues + session admin
 | « E-mail ou mot de passe incorrect » alors que les identifiants sont bons | Le compte n’existe pas dans **Authentication → Users**, ou il a été créé sans **Auto Confirm User** : supprimez-le et recréez-le |
 | « Ce compte n’est pas autorisé » | L’adresse n’est pas dans `ADMIN_EMAILS` (vérifiez l’orthographe, puis redémarrez ou redéployez) |
 | « Trop de tentatives » à la connexion | Attendez 10 minutes : la limite est de 5 essais par visiteur |
-| Les participants ne reçoivent pas d’e-mail | `RESEND_API_KEY` / `EMAIL_FROM` manquants, ou domaine non vérifié dans Resend (consultez **Resend → Logs**) |
+| Les participants ne reçoivent pas d’e-mail | `GMAIL_USER` / `GMAIL_APP_PASSWORD` manquants ou erronés (utilisez **M’envoyer un test** dans l’onglet Annonce : le message d’erreur précise la cause), ou limite quotidienne de Gmail atteinte. Vérifiez aussi le dossier « Messages envoyés » du compte |
+| « Gmail a refusé la connexion » | Le mot de passe d’application est faux ou a été supprimé : créez-en un nouveau. Le mot de passe habituel du compte ne fonctionne pas |
 | Les liens des e-mails pointent vers `localhost` | `NEXT_PUBLIC_SITE_URL` n’est pas défini sur Vercel |
 | La caméra ne s’ouvre pas au check-in | Autorisez la caméra pour le site dans le navigateur ; la page doit être en HTTPS |
 | Le compteur affiche toujours 150 places | La base est injoignable ou la migration n’a pas été exécutée : la valeur par défaut est affichée |

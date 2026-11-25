@@ -88,7 +88,7 @@ Commandes utiles :
 ### 2. Créer les tables (migration SQL)
 
 1. Ouvrez **SQL Editor → New query**.
-2. Copiez-collez **tout** le contenu de [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
+2. Copiez-collez **tout** le contenu de [`supabase/setup.sql`](supabase/setup.sql).
 3. Cliquez sur **Run**.
 
 Ce script crée :
@@ -100,29 +100,32 @@ Ce script crée :
 
 Le script peut être relancé sans risque.
 
-### 3. Configurer la connexion des administrateurs
+### 3. Créer les comptes administrateurs
 
-Dans **Authentication → URL Configuration** :
+La connexion à `/admin` se fait avec **une adresse e-mail et un mot de passe**. Aucun e-mail n’est envoyé à la connexion, et il n’existe **aucune page d’inscription** : chaque compte est créé à la main dans Supabase.
 
-- **Site URL** : l’adresse du site (`http://localhost:3000` en local, puis l’adresse Vercel) ;
-- **Redirect URLs** : ajoutez
-  - `http://localhost:3000/admin/auth/callback`
-  - `https://VOTRE-DOMAINE/admin/auth/callback`
+Pour chaque organisateur :
 
-Dans **Authentication → Emails → Magic Link**, remplacez le contenu par celui-ci afin que l’e-mail contienne aussi le **code à 6 chiffres** (indispensable pour se connecter depuis un téléphone) :
+1. Dans Supabase, ouvrez **Authentication → Users**.
+2. Cliquez sur **Add user → Create new user**.
+3. Saisissez son **adresse e-mail** et un **mot de passe** solide (12 caractères au minimum, unique, idéalement généré par un gestionnaire de mots de passe).
+4. Laissez cochée la case **Auto Confirm User** : sans elle, le compte reste « en attente de confirmation » et la connexion est refusée.
+5. Cliquez sur **Create user**.
+6. Ajoutez la même adresse à la variable `ADMIN_EMAILS` (dans `.env.local` en local, et dans **Vercel → Settings → Environment Variables** en production), en séparant les adresses par des virgules, puis redémarrez le serveur ou redéployez.
+7. Transmettez le mot de passe à la personne par un canal sûr (jamais dans un groupe WhatsApp).
 
-```html
-<h2>Connexion à l’administration du workshop</h2>
-<p>Cliquez sur ce lien pour vous connecter :</p>
-<p><a href="{{ .ConfirmationURL }}">Me connecter</a></p>
-<p>Ou saisissez ce code sur la page de connexion : <strong>{{ .Token }}</strong></p>
-```
+Les deux conditions sont nécessaires : un compte Supabase **et** une adresse présente dans `ADMIN_EMAILS`. Un compte valide dont l’adresse n’est pas dans la liste est immédiatement déconnecté, avec un message explicite.
 
-Faites la même chose pour le modèle **Confirm signup** (utilisé lors de la toute première connexion d’un administrateur).
+**Changer un mot de passe ou retirer un accès**
 
-> Le service d’e-mail intégré à Supabase est limité à quelques envois par heure. Pour l’équipe d’organisation c’est suffisant ; au besoin, branchez Resend en SMTP dans **Authentication → Emails → SMTP Settings**.
+- Changer un mot de passe : dans **Authentication → Users**, supprimez l’utilisateur puis recréez-le avec le nouveau mot de passe (aucune donnée du workshop n’est liée au compte).
+- Retirer un accès : retirez l’adresse de `ADMIN_EMAILS` (effet immédiat après redémarrage ou redéploiement) et supprimez l’utilisateur dans Supabase.
 
-Enfin, indiquez les adresses autorisées dans la variable `ADMIN_EMAILS` (séparées par des virgules). Toute autre adresse est refusée.
+**Recommandé : fermer les inscriptions publiques**
+
+Dans **Authentication → Sign In / Providers**, désactivez **Allow new users to sign up**. Le site ne propose pas d’inscription et `ADMIN_EMAILS` protège déjà l’administration, mais ce réglage empêche en plus toute création de compte par l’API.
+
+**Protection contre les essais répétés** : la page de connexion accepte 5 tentatives toutes les 10 minutes par visiteur, puis affiche « Trop de tentatives ».
 
 ---
 
@@ -169,7 +172,7 @@ Toutes les variables sont décrites dans [`.env.example`](.env.example).
 3. Dans **Environment Variables**, ajoutez toutes les variables du tableau ci-dessus.
    Pour `NEXT_PUBLIC_SITE_URL`, mettez l’adresse finale (ex. `https://workshop-ia.vercel.app`).
 4. Cliquez sur **Deploy**.
-5. Dans Supabase (**Authentication → URL Configuration**), ajoutez l’adresse Vercel en *Site URL* et `https://…/admin/auth/callback` en *Redirect URL*.
+5. Créez les comptes des organisateurs dans Supabase et vérifiez que `ADMIN_EMAILS` contient leurs adresses (voir [Créer les comptes administrateurs](#3-créer-les-comptes-administrateurs)).
 6. Testez de bout en bout : une réservation, son annulation, un dépôt de projet, la connexion à `/admin`.
 
 Après toute modification d’une variable sur Vercel, relancez un déploiement (**Deployments → Redeploy**).
@@ -202,7 +205,7 @@ Aucun texte n’est écrit en dur dans les composants.
 
 Adresse : `/admin` (lien discret « Espace organisateurs » en bas du site).
 
-**Connexion** : saisissez votre adresse (elle doit figurer dans `ADMIN_EMAILS`), puis cliquez sur le lien reçu par e-mail **dans le même navigateur**, ou saisissez le code à 6 chiffres.
+**Connexion** : saisissez votre adresse e-mail et votre mot de passe (la page existe en français et en arabe). Le bouton **Se déconnecter** se trouve en haut à droite de chaque page de l’administration.
 
 | Onglet | Ce qu’on y fait |
 | --- | --- |
@@ -244,7 +247,7 @@ app/
     projets/soumettre/      Dépôt d’un projet
     opengraph-image.tsx     Image de partage (WhatsApp, Facebook…)
   admin/                    Administration (français uniquement)
-    login/                  Connexion par lien magique ou code
+    login/                  Connexion par e-mail et mot de passe
     (dashboard)/            Réservations, projets, statistiques, check-in
     export/reservations/    Export CSV / Excel
     actions.ts              Actions serveur de l’administration
@@ -285,8 +288,9 @@ proxy.ts                    Routage des langues + session admin
 | « Le service n’est pas encore configuré » à l’envoi d’un formulaire | `SUPABASE_SECRET_KEY` est vide. Renseignez-la et redémarrez le serveur |
 | « Les tables sont introuvables » dans l’administration | La migration SQL n’a pas été exécutée (voir [Configurer Supabase](#configurer-supabase)) |
 | « Configuration incomplète » sur `/admin/login` | `SUPABASE_SECRET_KEY` ou `ADMIN_EMAILS` est vide |
-| Le lien de connexion renvoie une erreur | Il a été ouvert dans un autre navigateur ou a expiré : utilisez le code à 6 chiffres, ou demandez un nouveau lien. Vérifiez aussi les *Redirect URLs* dans Supabase |
-| Aucun e-mail de connexion reçu | Adresse absente de `ADMIN_EMAILS`, courrier indésirable, ou limite horaire de Supabase atteinte |
+| « E-mail ou mot de passe incorrect » alors que les identifiants sont bons | Le compte n’existe pas dans **Authentication → Users**, ou il a été créé sans **Auto Confirm User** : supprimez-le et recréez-le |
+| « Ce compte n’est pas autorisé » | L’adresse n’est pas dans `ADMIN_EMAILS` (vérifiez l’orthographe, puis redémarrez ou redéployez) |
+| « Trop de tentatives » à la connexion | Attendez 10 minutes : la limite est de 5 essais par visiteur |
 | Les participants ne reçoivent pas d’e-mail | `RESEND_API_KEY` / `EMAIL_FROM` manquants, ou domaine non vérifié dans Resend (consultez **Resend → Logs**) |
 | Les liens des e-mails pointent vers `localhost` | `NEXT_PUBLIC_SITE_URL` n’est pas défini sur Vercel |
 | La caméra ne s’ouvre pas au check-in | Autorisez la caméra pour le site dans le navigateur ; la page doit être en HTTPS |

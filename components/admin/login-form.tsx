@@ -1,92 +1,87 @@
 "use client";
 
-import { useActionState } from "react";
-import { KeyRound, LoaderCircle, Mail } from "lucide-react";
-import { requestLogin, verifyLoginCode, type LoginState } from "@/app/admin/actions";
+import { useActionState, useState } from "react";
+import { Eye, EyeOff, LoaderCircle, LogIn } from "lucide-react";
+import { login, type LoginError, type LoginState } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import { Field, FormAlert, Input } from "@/components/ui/form";
 
-export function LoginForm({ linkError }: { linkError: boolean }) {
-  const [request, requestAction, requesting] = useActionState<LoginState, FormData>(
-    requestLogin,
-    { step: "email" },
-  );
-  const [verify, verifyAction, verifying] = useActionState<LoginState, FormData>(
-    verifyLoginCode,
-    { step: "code" },
-  );
+export type LoginLabels = {
+  email: string;
+  password: string;
+  showPassword: string;
+  hidePassword: string;
+  submit: string;
+  submitting: string;
+  errors: Record<LoginError, string>;
+};
 
-  if (request.step === "code" && request.email) {
-    return (
-      <form action={verifyAction} className="flex flex-col gap-5">
-        <FormAlert tone="info">
-          Si <strong dir="ltr">{request.email}</strong> est une adresse autorisée, un e-mail vient
-          d’être envoyé. Cliquez sur le lien qu’il contient <em>dans ce même navigateur</em>, ou
-          saisissez ci-dessous le code reçu.
-        </FormAlert>
-        <input type="hidden" name="email" value={request.email} />
-        <Field id="code" label="Code de connexion" error={verify.error}>
-          {(a11y) => (
-            <Input
-              {...a11y}
-              name="code"
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              pattern="[0-9 ]*"
-              maxLength={10}
-              required
-              autoFocus
-              dir="ltr"
-              className="text-center text-2xl font-bold tracking-[0.3em]"
-            />
-          )}
-        </Field>
-        <Button type="submit" size="lg" disabled={verifying}>
-          {verifying ? (
-            <LoaderCircle aria-hidden="true" className="animate-spin" />
-          ) : (
-            <KeyRound aria-hidden="true" />
-          )}
-          Se connecter
-        </Button>
-      </form>
-    );
-  }
+/** Connexion des organisateurs : e-mail + mot de passe (aucun e-mail envoyé). */
+export function LoginForm({ labels }: { labels: LoginLabels }) {
+  const [state, action, pending] = useActionState<LoginState, FormData>(login, {});
+  const [visible, setVisible] = useState(false);
 
   return (
-    <form action={requestAction} className="flex flex-col gap-5">
-      {linkError ? (
-        <FormAlert>
-          Ce lien de connexion est invalide, expiré, ou a été ouvert dans un autre navigateur.
-          Demandez-en un nouveau.
-        </FormAlert>
-      ) : null}
-      <Field
-        id="email"
-        label="Adresse e-mail"
-        hint="Seules les adresses des organisateurs sont autorisées."
-        error={request.error}
-      >
+    <form action={action} className="flex flex-col gap-5" noValidate>
+      {state.error ? <FormAlert>{labels.errors[state.error]}</FormAlert> : null}
+
+      <Field id="email" label={labels.email}>
         {(a11y) => (
           <Input
             {...a11y}
             name="email"
             type="email"
             inputMode="email"
-            autoComplete="email"
+            autoComplete="username"
+            defaultValue={state.email ?? ""}
             required
             autoFocus
             dir="ltr"
           />
         )}
       </Field>
-      <Button type="submit" size="lg" disabled={requesting}>
-        {requesting ? (
-          <LoaderCircle aria-hidden="true" className="animate-spin" />
-        ) : (
-          <Mail aria-hidden="true" />
+
+      <Field id="password" label={labels.password}>
+        {(a11y) => (
+          <div className="relative">
+            <Input
+              {...a11y}
+              name="password"
+              type={visible ? "text" : "password"}
+              autoComplete="current-password"
+              required
+              dir="ltr"
+              className="pe-13"
+            />
+            <button
+              type="button"
+              onClick={() => setVisible((value) => !value)}
+              aria-label={visible ? labels.hidePassword : labels.showPassword}
+              aria-pressed={visible}
+              className="absolute end-1.5 top-1/2 grid size-10 -translate-y-1/2 cursor-pointer place-items-center rounded-full text-muted hover:bg-navy/5 hover:text-navy"
+            >
+              {visible ? (
+                <EyeOff aria-hidden="true" className="size-5" />
+              ) : (
+                <Eye aria-hidden="true" className="size-5" />
+              )}
+            </button>
+          </div>
         )}
-        Recevoir mon lien de connexion
+      </Field>
+
+      <Button type="submit" size="lg" disabled={pending}>
+        {pending ? (
+          <>
+            <LoaderCircle aria-hidden="true" className="animate-spin" />
+            {labels.submitting}
+          </>
+        ) : (
+          <>
+            <LogIn aria-hidden="true" className="rtl:-scale-x-100" />
+            {labels.submit}
+          </>
+        )}
       </Button>
     </form>
   );

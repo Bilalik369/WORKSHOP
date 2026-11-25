@@ -409,5 +409,30 @@
   "notFound": {
     "title": "Page introuvable",
     "text": "La page que vous cherchez n’existe pas ou a été déplacée."
+  },
+  "adminLogin": {
+    "badge": "Espace organisateurs",
+    "title": "Connexion",
+    "lead": "Connectez-vous avec votre adresse e-mail et votre mot de passe d’organisateur.",
+    "email": "Adresse e-mail",
+    "password": "Mot de passe",
+    "showPassword": "Afficher le mot de passe",
+    "hidePassword": "Masquer le mot de passe",
+    "submit": "Se connecter",
+    "submitting": "Connexion…",
+    "back": "Retour au site",
+    "switchTo": "العربية",
+    "switchLabel": "Afficher cette page en arabe",
+    "noSignup": "Il n’y a pas d’inscription : les comptes sont créés par les responsables du workshop.",
+    "errors": {
+      "invalid": "E-mail ou mot de passe incorrect.",
+      "unauthorized": "Ce compte n’est pas autorisé à accéder à l’administration. Vous avez été déconnecté.",
+      "rateLimit": "Trop de tentatives. Patientez 10 minutes avant de réessayer.",
+      "missing": "Saisissez votre e-mail et votre mot de passe."
+    },
+    "setupTitle": "Configuration incomplète",
+    "setupSecret": "Renseignez SUPABASE_SECRET_KEY dans les variables d’environnement.",
+    "setupAdmins": "Ajoutez au moins une adresse dans ADMIN_EMAILS.",
+    "setupRestart": "Redémarrez ensuite le serveur."
   }
 }

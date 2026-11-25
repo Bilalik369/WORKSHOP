@@ -6,68 +6,48 @@ import { assertAdmin } from "@/lib/admin/auth";
 import { notifyCancellation, notifyPromoted } from "@/lib/email/notify";
 import { sendEmail } from "@/lib/email/send";
 import { projectDecisionEmail } from "@/lib/email/templates";
-import { getDefaultCapacity, getSiteUrl, isAdminEmail } from "@/lib/env";
+import { getDefaultCapacity, isAdminEmail } from "@/lib/env";
 import { rateLimit } from "@/lib/security";
 import type { Project, Reservation } from "@/lib/types";
 import { createAdminClient } from "@/utils/supabase/admin";
 import { createClient } from "@/utils/supabase/server";
 
 /* ------------------------------------------------------------------ */
-/* Connexion                                                           */
+/* Connexion (e-mail + mot de passe, aucun e-mail envoyé)              */
 /* ------------------------------------------------------------------ */
 
-export type LoginState = { step: "email" | "code"; email?: string; error?: string };
+/** Codes d'erreur traduits par la page de connexion (messages/*.json → adminLogin). */
+export type LoginError = "invalid" | "unauthorized" | "rateLimit" | "missing";
+
+export type LoginState = { error?: LoginError; email?: string };
 
 /**
- * Envoie un lien magique + un code à 6 chiffres. La réponse est identique
- * que l'adresse soit autorisée ou non (on ne révèle pas la liste des admins).
+ * Connexion par e-mail et mot de passe (Supabase Auth).
+ * - Limite : 5 tentatives par visiteur toutes les 10 minutes.
+ * - Identifiants erronés : message générique (on ne révèle pas si le compte existe).
+ * - Compte valide mais absent de ADMIN_EMAILS : déconnexion immédiate.
  */
-export async function requestLogin(_: LoginState, formData: FormData): Promise<LoginState> {
+export async function login(_: LoginState, formData: FormData): Promise<LoginState> {
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { step: "email", error: "Saisissez une adresse e-mail valide." };
-  }
-  if (!(await rateLimit("admin-login", 5, 900))) {
-    return { step: "email", error: "Trop de tentatives. Réessayez dans quelques minutes." };
-  }
+  const password = String(formData.get("password") ?? "");
 
-  if (isAdminEmail(email)) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: `${getSiteUrl()}/admin/auth/callback`,
-      },
-    });
-    if (error) {
-      console.error("[admin] signInWithOtp :", error.message);
-      return {
-        step: "email",
-        error: "L’e-mail de connexion n’a pas pu être envoyé. Réessayez dans une minute.",
-      };
-    }
-  }
-  return { step: "code", email };
-}
+  if (!email || !password) return { error: "missing", email };
+  if (email.length > 200 || password.length > 200) return { error: "invalid", email };
 
-export async function verifyLoginCode(_: LoginState, formData: FormData): Promise<LoginState> {
-  const email = String(formData.get("email") ?? "")
-    .trim()
-    .toLowerCase();
-  const token = String(formData.get("code") ?? "").replace(/\s/g, "");
-  const invalid: LoginState = { step: "code", email, error: "Code invalide ou expiré." };
-
-  if (!isAdminEmail(email) || !/^\d{6,8}$/.test(token)) return invalid;
-  if (!(await rateLimit("admin-code", 8, 900))) {
-    return { step: "code", email, error: "Trop de tentatives. Réessayez dans quelques minutes." };
+  if (!(await rateLimit("admin-login", 5, 600))) {
+    return { error: "rateLimit", email };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
-  if (error) return invalid;
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error || !data.user) return { error: "invalid", email };
+
+  if (!isAdminEmail(data.user.email)) {
+    await supabase.auth.signOut();
+    return { error: "unauthorized", email };
+  }
 
   redirect("/admin/reservations");
 }

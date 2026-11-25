@@ -32,7 +32,7 @@ export function AdminNav({ email }: { email: string }) {
             className="inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border border-navy/15 bg-white px-3.5 text-sm font-semibold text-navy hover:border-navy/40"
           >
             <LogOut aria-hidden="true" className="size-4" />
-            Déconnexion
+            Se déconnecter
           </button>
         </form>
       </div>

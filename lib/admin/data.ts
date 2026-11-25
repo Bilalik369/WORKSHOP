@@ -8,7 +8,7 @@ export type AdminData<T> = { rows: T[]; error: string | null };
 /** Message lisible quand la base n'est pas encore prête (migration non exécutée…). */
 function explain(message: string): string {
   if (/does not exist|schema cache|Could not find/i.test(message)) {
-    return "Les tables sont introuvables : exécutez le fichier supabase/migrations/0001_init.sql dans l’éditeur SQL de Supabase.";
+    return "Les tables sont introuvables : exécutez le fichier supabase/setup.sql dans l’éditeur SQL de Supabase.";
   }
   return `Erreur de base de données : ${message}`;
 }

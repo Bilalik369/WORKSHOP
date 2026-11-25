@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import { event } from "@/data/event";
 import { site } from "@/data/site";
 import { Link } from "@/i18n/navigation";
 import { Logo } from "@/components/shared/logo";
@@ -96,7 +97,7 @@ export async function Footer() {
 
       <div className="border-t border-navy/10">
         <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-2 px-5 py-5 text-sm text-muted sm:flex-row sm:items-center sm:px-8">
-          <p>{t("rights")}</p>
+          <p>{t("rights", { year: event.start.slice(0, 4) })}</p>
           <a href="/admin" className="hover:text-navy hover:underline">
             {t("admin")}
           </a>

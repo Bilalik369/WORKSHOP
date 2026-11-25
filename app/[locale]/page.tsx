@@ -1,5 +1,7 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getEventLabels } from "@/data/event";
 import { site } from "@/data/site";
+import { contentLang } from "@/i18n/routing";
 import { getAcceptedProjects, getSeatStats, getSubmissionWindow } from "@/lib/data/public";
 import { getSiteUrl } from "@/lib/env";
 import { About } from "@/components/landing/about";
@@ -36,7 +38,9 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
     "@context": "https://schema.org",
     "@type": "EducationEvent",
     name: tMeta("title"),
-    description: tMeta("description"),
+    description: tMeta("description", {
+      date: getEventLabels(contentLang(locale)).dateInline,
+    }),
     startDate: site.eventStart,
     endDate: site.eventEnd,
     eventStatus: "https://schema.org/EventScheduled",

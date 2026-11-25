@@ -4,8 +4,13 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { assertAdmin } from "@/lib/admin/auth";
 import { notifyCancellation, notifyPromoted } from "@/lib/email/notify";
-import { sendEmail } from "@/lib/email/send";
-import { projectDecisionEmail } from "@/lib/email/templates";
+import {
+  sampleReservation,
+  sendAnnouncementBatch,
+  type BatchResult,
+} from "@/lib/email/announcement";
+import { isEmailConfigured, sendEmail } from "@/lib/email/send";
+import { dateChangeEmail, projectDecisionEmail } from "@/lib/email/templates";
 import { getDefaultCapacity, isAdminEmail } from "@/lib/env";
 import { rateLimit } from "@/lib/security";
 import type { Project, Reservation } from "@/lib/types";
@@ -78,10 +83,20 @@ export async function setPresence(id: string, present: boolean): Promise<Result>
 }
 
 /** Annule une réservation depuis l'administration (libère la place). */
-export async function adminCancelReservation(cancelToken: string): Promise<Result> {
+export async function adminCancelReservation(id: string): Promise<Result> {
   await assertAdmin();
-  const { data, error } = await createAdminClient().rpc("cancel_reservation", {
-    p_cancel_token: cancelToken,
+  const supabase = createAdminClient();
+
+  // Le jeton d'annulation reste côté serveur : il n'est jamais envoyé au navigateur.
+  const { data: row } = await supabase
+    .from("reservations")
+    .select("cancel_token")
+    .eq("id", id)
+    .maybeSingle();
+  if (!row) return { ok: false, error: "Réservation introuvable." };
+
+  const { data, error } = await supabase.rpc("cancel_reservation", {
+    p_cancel_token: row.cancel_token,
     p_default_capacity: getDefaultCapacity(),
   });
   if (error || !data?.ok) return { ok: false, error: error?.message ?? "Réservation introuvable." };
@@ -169,4 +184,37 @@ export async function decideProject(
   revalidatePath("/admin", "layout");
   revalidatePath("/[locale]", "page");
   return { ok: true };
+}
+
+/* ------------------------------------------------------------------ */
+/* Annonce du changement de date                                       */
+/* ------------------------------------------------------------------ */
+
+/**
+ * Envoie l'e-mail d'annonce UNIQUEMENT à l'administrateur connecté,
+ * avec des données d'exemple. Ne modifie rien en base.
+ */
+export async function sendDateChangeTest(): Promise<Result> {
+  const admin = await assertAdmin();
+  if (!isEmailConfigured()) {
+    return { ok: false, error: "Resend n’est pas configuré (RESEND_API_KEY et EMAIL_FROM)." };
+  }
+  const message = dateChangeEmail(sampleReservation(admin, "confirmed"));
+  const { sent } = await sendEmail({ ...message, subject: `[TEST] ${message.subject}` });
+  return sent
+    ? { ok: true }
+    : { ok: false, error: "L’envoi a échoué. Vérifiez la clé Resend et l’expéditeur (voir Resend → Logs)." };
+}
+
+/**
+ * Envoie UN lot de l'annonce (50 personnes) aux réservations confirmées
+ * et en liste d'attente qui ne l'ont pas encore reçue. L'interface
+ * rappelle cette action tant qu'il reste des destinataires.
+ * Ne se déclenche jamais seule : uniquement par le bouton de l'administration.
+ */
+export async function sendDateChangeBatch(): Promise<BatchResult> {
+  await assertAdmin();
+  const result = await sendAnnouncementBatch();
+  revalidatePath("/admin", "layout");
+  return result;
 }

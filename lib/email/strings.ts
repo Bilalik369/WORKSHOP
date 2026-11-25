@@ -7,14 +7,13 @@ export const emailStrings = {
     brand: "Workshop IA & Éducation",
     eventTitle: "L’Intelligence Artificielle au Service de l’Éducation Marocaine",
     tagline: "Ensemble pour une éducation augmentée",
-    date: "Samedi 2 janvier 2027 · 09h30 – 15h30",
     venue: "ESEF Beni Mellal — École Supérieure d’Éducation et de Formation, Beni Mellal, Maroc",
     labels: { date: "Date", venue: "Lieu", code: "Code de réservation", holder: "Participant·e" },
     footer:
       "Vous recevez cet e-mail car vous vous êtes inscrit·e au workshop organisé par les étudiants du Master « Innovation, Technologies et IA pour l’Ingénierie Pédagogique » — ESEF Beni Mellal.",
     hello: "Bonjour {name},",
     confirmed: {
-      subject: "Votre billet — Workshop IA & Éducation (2 janvier 2027)",
+      subject: "Votre billet — Workshop IA & Éducation ({date})",
       title: "Votre place est réservée",
       intro:
         "Merci pour votre inscription ! Voici votre billet. Présentez ce QR code à l’entrée le jour du workshop, sur votre téléphone ou imprimé.",
@@ -74,20 +73,39 @@ export const emailStrings = {
       reminder: "Nous serions ravis de vous compter parmi les participants du workshop.",
       button: "Réserver ma place",
     },
+    dateChange: {
+      subject: "Changement de date — Workshop IA & Éducation : {date}",
+      title: "Le workshop change de date",
+      intro:
+        "Le workshop, initialement prévu le {previous}, est reporté au {date}. Les horaires ({time}) et le lieu restent inchangés.",
+      newDate: "Nouvelle date",
+      confirmed:
+        "Votre réservation reste valable : vous n’avez rien à faire. Votre code de réservation et votre billet avec QR code sont les mêmes.",
+      waitlist:
+        "Votre inscription sur la liste d’attente reste valable, avec le même code. Dès qu’une place se libère, vous recevez votre billet par e-mail.",
+      button: "Afficher mon billet",
+      buttonWaitlist: "Suivre mon inscription",
+      calendarIntro: "Pensez à mettre à jour votre agenda :",
+      calendarLink: "télécharger le fichier agenda mis à jour (.ics)",
+      cancelIntro:
+        "Cette nouvelle date ne vous convient pas ? Libérez votre place pour une autre personne :",
+      cancelLink: "Annuler ma réservation",
+      apology:
+        "Nous vous prions de nous excuser pour ce changement et vous remercions de votre compréhension.",
+    },
     formats: { oral: "Présentation orale (5 min)", poster: "Poster", demo: "Démo" },
   },
   ar: {
     brand: "ورشة الذكاء الاصطناعي والتعليم",
     eventTitle: "الذكاء الاصطناعي في خدمة التعليم المغربي",
     tagline: "معًا من أجل تعليم مُعزَّز",
-    date: "السبت 2 يناير 2027 · 09:30 – 15:30",
     venue: "المدرسة العليا للتربية والتكوين، جامعة السلطان مولاي سليمان، بني ملال، المغرب",
     labels: { date: "التاريخ", venue: "المكان", code: "رمز الحجز", holder: "المشارك(ة)" },
     footer:
       "توصلت بهذه الرسالة لأنك سجّلت في الورشة التي ينظمها طلبة ماستر «الابتكار والتكنولوجيات والذكاء الاصطناعي في الهندسة البيداغوجية» — المدرسة العليا للتربية والتكوين بني ملال.",
     hello: "مرحبًا {name}،",
     confirmed: {
-      subject: "تذكرتك — ورشة الذكاء الاصطناعي والتعليم (2 يناير 2027)",
+      subject: "تذكرتك — ورشة الذكاء الاصطناعي والتعليم ({date})",
       title: "مقعدك محجوز",
       intro:
         "شكرًا على تسجيلك! هذه تذكرتك. قدّم رمز QR عند الدخول يوم الورشة، على هاتفك أو مطبوعًا.",
@@ -145,6 +163,24 @@ export const emailStrings = {
       comment: "رسالة اللجنة:",
       reminder: "يسعدنا أن تكون من بين المشاركين في الورشة.",
       button: "احجز مقعدي",
+    },
+    dateChange: {
+      subject: "تغيير التاريخ — ورشة الذكاء الاصطناعي والتعليم: {date}",
+      title: "تغيير تاريخ الورشة",
+      intro:
+        "كانت الورشة مبرمجة يوم {previous}، وقد تأجّلت إلى يوم {date}. التوقيت ({time}) والمكان لم يتغيّرا.",
+      newDate: "التاريخ الجديد",
+      confirmed:
+        "حجزك يبقى صالحًا ولا يلزمك أي إجراء. رمز الحجز وتذكرتك برمز QR لم يتغيّرا.",
+      waitlist:
+        "تسجيلك في لائحة الانتظار يبقى صالحًا بالرمز نفسه. فور شغور مقعد ستتوصل بتذكرتك بالبريد الإلكتروني.",
+      button: "عرض تذكرتي",
+      buttonWaitlist: "متابعة تسجيلي",
+      calendarIntro: "لا تنسَ تحديث يوميتك:",
+      calendarLink: "تحميل ملف اليومية المحدَّث (.ics)",
+      cancelIntro: "التاريخ الجديد لا يناسبك؟ حرّر مقعدك لفائدة شخص آخر:",
+      cancelLink: "إلغاء الحجز",
+      apology: "نعتذر عن هذا التغيير ونشكرك على تفهّمك.",
     },
     formats: { oral: "عرض شفوي (5 دقائق)", poster: "ملصق", demo: "عرض تجريبي" },
   },

@@ -19,6 +19,8 @@ export type Reservation = {
   checked_in_at: string | null;
   promoted_at: string | null;
   cancelled_at: string | null;
+  /** Date d'envoi de l'annonce du changement de date (null = pas encore prévenu). */
+  date_change_notified_at?: string | null;
   created_at: string;
 };
 

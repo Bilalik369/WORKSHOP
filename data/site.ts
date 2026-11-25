@@ -1,12 +1,14 @@
+import { event } from "./event";
+
 /**
- * Informations générales de l'événement.
- * Modifiez ce fichier pour mettre à jour la date, le lieu ou les liens.
+ * Informations générales : lieu, contact, liens.
+ * La DATE se modifie dans `data/event.ts` (un seul endroit pour tout le site).
  */
 export const site = {
-  /** Début et fin (heure du Maroc, UTC+1 en janvier). */
-  eventStart: "2027-01-02T09:30:00+01:00",
-  eventEnd: "2027-01-02T15:30:00+01:00",
-  timeZone: "Africa/Casablanca",
+  /** Début et fin : repris de data/event.ts. */
+  eventStart: event.start,
+  eventEnd: event.end,
+  timeZone: event.timeZone,
 
   /** Valeurs par défaut si les variables d'environnement sont absentes. */
   defaultCapacity: 150,

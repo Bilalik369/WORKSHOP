@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { CalendarDays, MapPin, Ticket } from "lucide-react";
+import { getEventLabels } from "@/data/event";
+import { contentLang } from "@/i18n/routing";
 import { getSeatStats } from "@/lib/data/public";
 import { ReservationForm } from "@/components/forms/reservation-form";
 import { SeatsCounter } from "@/components/landing/seats-counter";
@@ -11,7 +13,6 @@ type Props = { params: Promise<{ locale: string }> };
 
 // Le nombre de places doit toujours être à jour sur cette page.
 export const dynamic = "force-dynamic";
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "reservation" });
@@ -28,6 +29,7 @@ export default async function ReservationPage({ params }: Props) {
     getSeatStats(),
   ]);
   const seats = { capacity: stats.capacity, remaining: stats.remaining };
+  const when = getEventLabels(contentLang(locale));
 
   return (
     <PageShell>
@@ -46,8 +48,8 @@ export default async function ReservationPage({ params }: Props) {
             <li className="flex items-center gap-4">
               <IconCircle icon={CalendarDays} shape="square" />
               <p className="flex flex-col">
-                <span className="text-lg leading-tight font-bold text-navy">{tHero("date")}</span>
-                <span className="text-[0.95rem] text-muted">{tHero("time")}</span>
+                <span className="text-lg leading-tight font-bold text-navy">{when.date}</span>
+                <span className="text-[0.95rem] text-muted">{when.time}</span>
               </p>
             </li>
             <li className="flex items-center gap-4">

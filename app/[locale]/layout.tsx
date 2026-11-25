@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { NextIntlClientProvider, hasLocale } from "next-intl";
 import { getTranslations, setRequestLocale } from "next-intl/server";
+import { getEventLabels } from "@/data/event";
 import { contentLang, isRtl, routing } from "@/i18n/routing";
 import { getSiteUrl } from "@/lib/env";
 import { jakarta, plexArabic } from "@/lib/fonts";
@@ -28,12 +29,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "meta" });
   const siteUrl = getSiteUrl();
+  const description = t("description", {
+    date: getEventLabels(contentLang(locale)).dateInline,
+  });
   const path = contentLang(locale) === "ar" ? "/ar" : "/";
 
   return {
     metadataBase: new URL(siteUrl),
     title: { default: t("title"), template: `%s · ${t("shortTitle")}` },
-    description: t("description"),
+    description,
     applicationName: t("shortTitle"),
     alternates: {
       canonical: path,
@@ -44,14 +48,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: path,
       siteName: t("shortTitle"),
       title: t("title"),
-      description: t("description"),
+      description,
       locale: contentLang(locale) === "ar" ? "ar_MA" : "fr_MA",
       alternateLocale: contentLang(locale) === "ar" ? "fr_MA" : "ar_MA",
     },
     twitter: {
       card: "summary_large_image",
       title: t("title"),
-      description: t("description"),
+      description,
     },
     formatDetection: { telephone: false },
   };

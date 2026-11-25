@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/admin/auth";
 import { getAllReservations, getCapacity } from "@/lib/admin/data";
 import { ReservationsTable } from "@/components/admin/reservations-table";
 import { FormAlert } from "@/components/ui/form";
@@ -6,6 +7,7 @@ import { FormAlert } from "@/components/ui/form";
 export const metadata: Metadata = { title: "Réservations" };
 
 export default async function AdminReservationsPage() {
+  await requireAdmin();
   const [{ rows, error }, capacity] = await Promise.all([getAllReservations(), getCapacity()]);
 
   return (

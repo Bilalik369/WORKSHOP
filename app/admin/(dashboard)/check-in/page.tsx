@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import { Scanner } from "@/components/admin/scanner";
+import { requireAdmin } from "@/lib/admin/auth";
+import { LazyScanner } from "@/components/admin/lazy-scanner";
 
 export const metadata: Metadata = { title: "Check-in" };
 
-export default function AdminCheckInPage() {
+export default async function AdminCheckInPage() {
+  await requireAdmin();
+
   return (
     <>
       <div className="mx-auto mb-6 max-w-lg text-center">
@@ -13,7 +16,7 @@ export default function AdminCheckInPage() {
           délivrer les attestations.
         </p>
       </div>
-      <Scanner />
+      <LazyScanner />
     </>
   );
 }

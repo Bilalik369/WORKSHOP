@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChartColumn, Lightbulb, LogOut, ScanLine, Ticket } from "lucide-react";
+import { ChartColumn, Lightbulb, LogOut, Megaphone, ScanLine, Ticket } from "lucide-react";
 import { signOut } from "@/app/admin/actions";
 import { cn } from "@/lib/utils";
 
@@ -11,6 +11,7 @@ const TABS = [
   { href: "/admin/projets", label: "Projets", icon: Lightbulb },
   { href: "/admin/statistiques", label: "Statistiques", icon: ChartColumn },
   { href: "/admin/check-in", label: "Check-in", icon: ScanLine },
+  { href: "/admin/annonce", label: "Annonce", icon: Megaphone },
 ] as const;
 
 export function AdminNav({ email }: { email: string }) {
@@ -19,11 +20,11 @@ export function AdminNav({ email }: { email: string }) {
   return (
     <header className="no-print sticky top-0 z-40 border-b border-white/80 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between gap-4 px-4 pt-3 sm:px-6">
-        <p className="text-base font-extrabold text-navy sm:text-lg">
+        <p className="min-w-0 truncate text-base font-extrabold text-navy sm:text-lg">
           Workshop IA & Éducation
           <span className="ms-2 hidden text-sm font-medium text-muted sm:inline">Administration</span>
         </p>
-        <form action={signOut} className="flex items-center gap-3">
+        <form action={signOut} className="flex shrink-0 items-center gap-3">
           <span className="hidden text-sm text-muted md:inline" dir="ltr">
             {email}
           </span>
@@ -38,7 +39,7 @@ export function AdminNav({ email }: { email: string }) {
       </div>
       <nav
         aria-label="Sections de l’administration"
-        className="mx-auto w-full max-w-7xl overflow-x-auto px-2 sm:px-4"
+        className="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden mx-auto w-full max-w-7xl overflow-x-auto px-2 sm:px-4"
       >
         <ul className="flex min-w-max gap-1 pt-2">
           {TABS.map((tab) => {
@@ -47,6 +48,8 @@ export function AdminNav({ email }: { email: string }) {
               <li key={tab.href}>
                 <Link
                   href={tab.href}
+                  // Précharge l'onglet (données comprises) : le changement est immédiat.
+                  prefetch
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "flex items-center gap-2 border-b-[3px] px-3.5 py-2.5 text-[0.95rem] font-semibold transition-colors",

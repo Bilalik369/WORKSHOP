@@ -2,8 +2,8 @@
   "meta": {
     "title": "L’IA au Service de l’Éducation Marocaine — Workshop · ESEF Beni Mellal",
     "shortTitle": "Workshop IA & Éducation",
-    "description": "Workshop gratuit le samedi 2 janvier 2027 à l’ESEF Beni Mellal : conférences, projets étudiants et atelier pratique sur l’intelligence artificielle au service de l’éducation marocaine. Réservez votre place.",
-    "ogAlt": "Affiche du workshop « L’Intelligence Artificielle au Service de l’Éducation Marocaine », 2 janvier 2027, ESEF Beni Mellal"
+    "description": "Workshop gratuit le {date} à l’ESEF Beni Mellal : conférences, projets étudiants et atelier pratique sur l’intelligence artificielle au service de l’éducation marocaine. Réservez votre place.",
+    "ogAlt": "Affiche du workshop « L’Intelligence Artificielle au Service de l’Éducation Marocaine », {date}, ESEF Beni Mellal"
   },
   "common": {
     "skipToContent": "Aller au contenu",
@@ -33,8 +33,6 @@
     "titleLine3": "au Service de",
     "titleLine4": "l’Éducation",
     "titleLine5": "Marocaine",
-    "date": "Samedi 2 janvier 2027",
-    "time": "09h30 – 15h30",
     "venue": "ESEF — Beni Mellal",
     "venueFull": "École Supérieure d’Éducation et de Formation",
     "venueCity": "Beni Mellal, Maroc",
@@ -122,7 +120,7 @@
   "programme": {
     "eyebrow": "Programme",
     "title": "Le déroulé de la journée",
-    "lead": "De 09h30 à 15h30 : conférences, projets, table ronde et atelier pratique.",
+    "lead": "De {start} à {end} : conférences, projets, table ronde et atelier pratique.",
     "filterLabel": "Filtrer le programme",
     "filters": {
       "all": "Tout",
@@ -163,7 +161,7 @@
     "eyebrow": "Infos pratiques",
     "title": "Tout ce qu’il faut savoir avant de venir",
     "whenTitle": "Date et horaires",
-    "whenText": "Samedi 2 janvier 2027, de 09h30 à 15h30. Accueil des participants dès 09h00.",
+    "whenText": "{date}, de {start} à {end}. Accueil des participants dès 09h00.",
     "whereTitle": "Adresse",
     "whereText": "École Supérieure d’Éducation et de Formation (ESEF), Université Sultan Moulay Slimane, Beni Mellal, Maroc.",
     "bringTitle": "À apporter",
@@ -217,7 +215,7 @@
     "navTitle": "Le workshop",
     "followTitle": "Suivez-nous",
     "participateTitle": "Participer",
-    "rights": "© 2027 Workshop IA & Éducation — ESEF Beni Mellal.",
+    "rights": "© {year} Workshop IA & Éducation — ESEF Beni Mellal.",
     "admin": "Espace organisateurs",
     "socials": {
       "instagram": "Instagram",
@@ -434,5 +432,11 @@
     "setupSecret": "Renseignez SUPABASE_SECRET_KEY dans les variables d’environnement.",
     "setupAdmins": "Ajoutez au moins une adresse dans ADMIN_EMAILS.",
     "setupRestart": "Redémarrez ensuite le serveur."
+  },
+  "dateChange": {
+    "label": "Annonce : changement de date",
+    "title": "Le workshop est reporté au {date}",
+    "text": "Initialement prévu le {previous}, le workshop aura lieu le {date}, aux mêmes horaires ({time}) et au même endroit. Les réservations déjà effectuées restent valables : même code, même billet.",
+    "dismiss": "Fermer l’annonce"
   }
 }

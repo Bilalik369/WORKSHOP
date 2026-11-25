@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { requireAdmin } from "@/lib/admin/auth";
 import { getAllProjects } from "@/lib/admin/data";
 import { ProjectsBoard } from "@/components/admin/projects-board";
 import { FormAlert } from "@/components/ui/form";
@@ -6,6 +7,7 @@ import { FormAlert } from "@/components/ui/form";
 export const metadata: Metadata = { title: "Projets" };
 
 export default async function AdminProjectsPage() {
+  await requireAdmin();
   const { rows, error } = await getAllProjects();
 
   return (

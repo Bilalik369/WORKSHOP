@@ -1,4 +1,3 @@
-import ExcelJS from "exceljs";
 import { getAdminEmail } from "@/lib/admin/auth";
 import { getAllReservations } from "@/lib/admin/data";
 import {
@@ -7,11 +6,10 @@ import {
   sourceLabel,
   statutLabel,
 } from "@/lib/admin/labels";
-import type { Reservation } from "@/lib/types";
+import type { AdminReservation as Reservation } from "@/lib/admin/data";
 import { formatPhone } from "@/lib/validation/shared";
 
 export const dynamic = "force-dynamic";
-
 const COLUMNS: { header: string; width: number; value: (r: Reservation) => string }[] = [
   { header: "Code", width: 14, value: (r) => r.code },
   { header: "Nom", width: 20, value: (r) => r.nom },
@@ -61,6 +59,8 @@ export async function GET(request: Request) {
     });
   }
 
+  // Bibliothèque lourde : chargée uniquement pour l'export Excel.
+  const { default: ExcelJS } = await import("exceljs");
   const workbook = new ExcelJS.Workbook();
   workbook.created = new Date();
   const sheet = workbook.addWorksheet("Réservations", {

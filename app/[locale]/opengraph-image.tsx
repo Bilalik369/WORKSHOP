@@ -1,12 +1,14 @@
 import { ImageResponse } from "next/og";
+import { getEventLabels } from "@/data/event";
 
 /**
  * Image de partage (WhatsApp, Facebook, LinkedIn…), générée dans le style
  * de l'affiche. Le texte reste en français : c'est la langue principale
  * et le rendu de l'arabe n'est pas fiable dans ce générateur d'images.
  */
-export const alt =
-  "Workshop « L’Intelligence Artificielle au Service de l’Éducation Marocaine » — 2 janvier 2027, ESEF Beni Mellal";
+const when = getEventLabels("fr");
+
+export const alt = `Workshop « L’Intelligence Artificielle au Service de l’Éducation Marocaine » — ${when.dateShort}, ESEF Beni Mellal`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -189,7 +191,7 @@ export default async function OpenGraphImage() {
 
           <div style={{ display: "flex", flexDirection: "column", marginTop: 22 }}>
             <div style={{ display: "flex", fontSize: 34, fontWeight: 800, color: NAVY }}>
-              Samedi 2 janvier 2027 · 09h30 – 15h30
+              {when.dateTime}
             </div>
             <div style={{ display: "flex", fontSize: 25, fontWeight: 600, color: "#2f3c6b", marginTop: 6 }}>
               ESEF Beni Mellal — Université Sultan Moulay Slimane

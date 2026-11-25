@@ -1,4 +1,5 @@
 import "server-only";
+import { getEventLabels } from "@/data/event";
 import { buildIcs } from "@/lib/ics";
 import { getSiteUrl } from "@/lib/env";
 import { qrPngBuffer } from "@/lib/qr";
@@ -108,7 +109,9 @@ export async function ticketEmail(
 ): Promise<EmailMessage> {
   const lang = langOf(reservation.locale);
   const s = emailStrings[lang];
-  const copy = options.promoted ? { ...s.confirmed, ...s.promoted } : s.confirmed;
+  const when = getEventLabels(lang);
+  const base = options.promoted ? { ...s.confirmed, ...s.promoted } : s.confirmed;
+  const copy = { ...base, subject: fill(base.subject, { date: when.dateShort }) };
   const ticketUrl = localizedUrl(lang, `/reservation/billet/${reservation.ticket_token}`);
   const cancelUrl = localizedUrl(lang, `/reservation/annuler/${reservation.cancel_token}`);
   const name = fullName(reservation);
@@ -120,7 +123,7 @@ export async function ticketEmail(
     `<div style="text-align:center;font-size:24px;font-weight:800;letter-spacing:3px;color:${NAVY};margin:8px 0 4px;" dir="ltr">${escapeHtml(reservation.code)}</div>`,
     infoRows([
       [s.labels.holder, name],
-      [s.labels.date, s.date],
+      [s.labels.date, when.dateTime],
       [s.labels.venue, s.venue],
     ]),
     button(s.confirmed.button, ticketUrl),
@@ -137,7 +140,7 @@ export async function ticketEmail(
       fill(s.hello, { name: reservation.prenom }),
       copy.intro,
       `${s.labels.code} : ${reservation.code}`,
-      `${s.labels.date} : ${s.date}`,
+      `${s.labels.date} : ${when.dateTime}`,
       `${s.labels.venue} : ${s.venue}`,
       `${s.confirmed.button} : ${ticketUrl}`,
       `${s.confirmed.cancelLink} : ${cancelUrl}`,
@@ -157,6 +160,7 @@ export async function ticketEmail(
 export function waitlistEmail(reservation: Reservation, position: number | null): EmailMessage {
   const lang = langOf(reservation.locale);
   const s = emailStrings[lang];
+  const when = getEventLabels(lang);
   const ticketUrl = localizedUrl(lang, `/reservation/billet/${reservation.ticket_token}`);
   const cancelUrl = localizedUrl(lang, `/reservation/annuler/${reservation.cancel_token}`);
 
@@ -168,7 +172,7 @@ export function waitlistEmail(reservation: Reservation, position: number | null)
       : "",
     infoRows([
       [s.labels.code, reservation.code],
-      [s.labels.date, s.date],
+      [s.labels.date, when.dateTime],
       [s.labels.venue, s.venue],
     ]),
     button(s.waitlist.button, ticketUrl),
@@ -282,5 +286,61 @@ export function projectDecisionEmail(project: Project): EmailMessage {
     ]
       .filter(Boolean)
       .join("\n\n"),
+  };
+}
+
+/**
+ * Annonce du changement de date, pour les réservations confirmées et la
+ * liste d'attente. Sans pièce jointe (l'envoi groupé de Resend ne les
+ * accepte pas) : le fichier agenda mis à jour est proposé par un lien.
+ */
+export function dateChangeEmail(reservation: Reservation): EmailMessage {
+  const lang = langOf(reservation.locale);
+  const s = emailStrings[lang];
+  const copy = s.dateChange;
+  const when = getEventLabels(lang);
+  const isWaitlist = reservation.status === "waitlist";
+  const values = {
+    date: when.dateInline,
+    previous: when.previousDateInline,
+    time: when.time,
+  };
+  const ticketUrl = localizedUrl(lang, `/reservation/billet/${reservation.ticket_token}`);
+  const cancelUrl = localizedUrl(lang, `/reservation/annuler/${reservation.cancel_token}`);
+  const icsUrl = `${getSiteUrl()}/api/ics?lang=${lang}`;
+  const status = isWaitlist ? copy.waitlist : copy.confirmed;
+  const buttonLabel = isWaitlist ? copy.buttonWaitlist : copy.button;
+
+  const body = [
+    paragraph(escapeHtml(fill(s.hello, { name: reservation.prenom }))),
+    paragraph(escapeHtml(fill(copy.intro, values))),
+    `<div style="margin:18px 0;padding:18px 20px;border-radius:18px;background:#f5f7ff;border:1px solid #d5dcf7;text-align:center;"><div style="font-size:12px;font-weight:700;color:${MUTED};text-transform:uppercase;letter-spacing:${lang === "ar" ? "0" : "2px"};">${escapeHtml(copy.newDate)}</div><div style="margin-top:6px;font-size:24px;line-height:1.3;font-weight:800;color:${NAVY};">${escapeHtml(when.date)}</div><div style="margin-top:2px;font-size:17px;font-weight:700;color:${MINT};">${escapeHtml(when.time)}</div></div>`,
+    paragraph(escapeHtml(status)),
+    infoRows([
+      [s.labels.code, reservation.code],
+      [s.labels.holder, fullName(reservation)],
+      [s.labels.venue, s.venue],
+    ]),
+    button(buttonLabel, ticketUrl),
+    `<p style="margin:14px 0;font-size:15px;line-height:1.6;color:${INK};">${escapeHtml(copy.calendarIntro)} <a href="${icsUrl}" style="color:${NAVY};font-weight:700;">${escapeHtml(copy.calendarLink)}</a></p>`,
+    paragraph(escapeHtml(copy.apology), MUTED),
+    `<p style="margin:22px 0 0;padding-top:18px;border-top:1px solid #e3e8fb;font-size:14px;line-height:1.6;color:${MUTED};">${escapeHtml(copy.cancelIntro)} <a href="${cancelUrl}" style="color:${NAVY};font-weight:700;">${escapeHtml(copy.cancelLink)}</a></p>`,
+  ].join("\n");
+
+  return {
+    to: reservation.email,
+    subject: fill(copy.subject, values),
+    html: layout(lang, copy.title, body),
+    text: [
+      fill(s.hello, { name: reservation.prenom }),
+      fill(copy.intro, values),
+      `${copy.newDate} : ${when.dateTime}`,
+      status,
+      `${s.labels.code} : ${reservation.code}`,
+      `${buttonLabel} : ${ticketUrl}`,
+      `${copy.calendarIntro} ${icsUrl}`,
+      copy.apology,
+      `${copy.cancelLink} : ${cancelUrl}`,
+    ].join("\n\n"),
   };
 }

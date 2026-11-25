@@ -263,7 +263,7 @@ export function HeroVisual({ label, className }: { label: string; className?: st
         strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="motion-hide"
+        className="motion-hide motion-lite"
       >
         {circuits.map((circuit, index) => (
           <path
@@ -350,7 +350,7 @@ export function HeroVisual({ label, className }: { label: string; className?: st
       </g>
 
       {/* Particules ascendantes */}
-      <g className="motion-hide">
+      <g className="motion-hide motion-lite">
         {particles.map((particle, index) => (
           <circle
             key={index}

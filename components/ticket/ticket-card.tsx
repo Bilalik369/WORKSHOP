@@ -10,6 +10,9 @@ type TicketProps = {
   name: string;
   code: string;
   qrDataUrl: string;
+  /** Libellés de date fournis par le serveur (data/event.ts). */
+  eventDate: string;
+  eventTime: string;
 };
 
 const WIDTH = 1200;
@@ -54,7 +57,7 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxWidth: number)
 }
 
 /** Billet d'entrée avec QR code, téléchargeable en PNG ou en PDF. */
-export function TicketCard({ name, code, qrDataUrl }: TicketProps) {
+export function TicketCard({ name, code, qrDataUrl, eventDate, eventTime }: TicketProps) {
   const t = useTranslations("ticket");
   const tHero = useTranslations("hero");
   const tCommon = useTranslations("common");
@@ -155,7 +158,7 @@ export function TicketCard({ name, code, qrDataUrl }: TicketProps) {
     // Date et lieu
     ctx.fillStyle = "#0a2a8c";
     ctx.font = `700 36px ${font}`;
-    ctx.fillText(`${tHero("date")} · ${tHero("time")}`, WIDTH / 2, 1365, WIDTH - 260);
+    ctx.fillText(`${eventDate} · ${eventTime}`, WIDTH / 2, 1365, WIDTH - 260);
     ctx.fillStyle = "#2f3c6b";
     ctx.font = `500 30px ${font}`;
     ctx.fillText(`${tHero("venue")} · ${tHero("venueCity")}`, WIDTH / 2, 1415, WIDTH - 260);
@@ -235,8 +238,8 @@ export function TicketCard({ name, code, qrDataUrl }: TicketProps) {
           <div>
             <dt className="text-xs font-semibold text-muted">{t("date")}</dt>
             <dd className="mt-0.5 text-[0.95rem] leading-snug font-bold text-navy">
-              {tHero("date")}
-              <span className="block font-medium text-ink">{tHero("time")}</span>
+              {eventDate}
+              <span className="block font-medium text-ink">{eventTime}</span>
             </dd>
           </div>
           <div>

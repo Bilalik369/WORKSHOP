@@ -1,4 +1,4 @@
-import { site } from "@/data/site";
+import { event } from "@/data/event";
 
 const toIcsDate = (iso: string) =>
   new Date(iso).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
@@ -22,12 +22,15 @@ export function buildIcs(options: {
     "BEGIN:VEVENT",
     "UID:workshop-ia-education-2027@esef-beni-mellal",
     `DTSTAMP:${toIcsDate(new Date().toISOString())}`,
-    `DTSTART:${toIcsDate(site.eventStart)}`,
-    `DTEND:${toIcsDate(site.eventEnd)}`,
+    `DTSTART:${toIcsDate(event.start)}`,
+    `DTEND:${toIcsDate(event.end)}`,
     `SUMMARY:${escapeText(options.title)}`,
     `DESCRIPTION:${escapeText(options.description)}`,
     `LOCATION:${escapeText(options.location)}`,
     `URL:${options.url}`,
+    // Même UID + SEQUENCE plus élevé : l'agenda met à jour l'événement existant.
+    `SEQUENCE:${event.icsSequence}`,
+    `LAST-MODIFIED:${toIcsDate(new Date().toISOString())}`,
     "STATUS:CONFIRMED",
     "BEGIN:VALARM",
     "TRIGGER:-P1D",

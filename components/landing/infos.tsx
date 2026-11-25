@@ -1,6 +1,8 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { Award, Backpack, CalendarDays, Check, Mail, MapPin } from "lucide-react";
+import { getEventLabels } from "@/data/event";
 import { site } from "@/data/site";
+import { contentLang } from "@/i18n/routing";
 import { BRING_ITEMS } from "@/lib/constants";
 import { Reveal } from "@/components/shared/motion";
 import { IconCircle, Section, SectionHeading } from "@/components/shared/section";
@@ -8,6 +10,7 @@ import { MapEmbed } from "./map-embed";
 
 export async function Infos() {
   const t = await getTranslations("infos");
+  const when = getEventLabels(contentLang(await getLocale()));
 
   return (
     <Section id="infos" labelledBy="infos-title">
@@ -19,7 +22,7 @@ export async function Infos() {
             <article className="glass h-full rounded-3xl p-6">
               <IconCircle icon={CalendarDays} />
               <h3 className="mt-4 text-lg font-bold">{t("whenTitle")}</h3>
-              <p className="mt-1.5 text-[0.95rem] leading-relaxed">{t("whenText")}</p>
+              <p className="mt-1.5 text-[0.95rem] leading-relaxed">{t("whenText", { date: when.date, start: when.startTime, end: when.endTime })}</p>
             </article>
           </Reveal>
           <Reveal delay={0.06} className="h-full">

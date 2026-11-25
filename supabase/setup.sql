@@ -75,6 +75,15 @@ create unique index if not exists reservations_email_active_key
 create index if not exists reservations_status_created_idx
   on public.reservations (status, created_at);
 
+-- Annonce du changement de date : date d'envoi à chaque personne
+-- (null = pas encore prévenue).
+alter table public.reservations
+  add column if not exists date_change_notified_at timestamptz;
+
+create index if not exists reservations_date_change_pending_idx
+  on public.reservations (created_at)
+  where date_change_notified_at is null and status <> 'cancelled';
+
 create table if not exists public.projects (
   id uuid primary key default gen_random_uuid(),
   porteur_nom text not null,

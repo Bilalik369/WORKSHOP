@@ -100,9 +100,18 @@ html[lang="ar"] body {
     scroll-behavior: smooth;
     scroll-padding-top: 6rem;
     -webkit-text-size-adjust: 100%;
+    /* Filet de sécurité : jamais de défilement horizontal de la page.
+       « clip » (contrairement à « hidden ») ne casse pas les en-têtes collants. */
+    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   body {
+    max-width: 100%;
+    overflow-x: hidden;
+    overflow-x: clip;
+    /* Les mots très longs (e-mails, liens) passent à la ligne au lieu de déborder. */
+    overflow-wrap: break-word;
     min-height: 100dvh;
     color: var(--color-ink);
     background-color: var(--color-ice);
@@ -184,6 +193,30 @@ html[lang="ar"] body {
   }
   [dir="rtl"] .divider-dot::before {
     background: linear-gradient(270deg, var(--color-azure), var(--color-lavender));
+  }
+}
+
+/* -------------------------------------------------------------------
+   Téléphones : effets allégés pour un défilement fluide.
+   ------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  /* Un fond fixe force le navigateur à tout redessiner à chaque défilement. */
+  body {
+    background-attachment: scroll;
+  }
+
+  /* Le flou d'arrière-plan est l'effet le plus coûteux sur mobile :
+     on garde l'aspect « carte claire » sans le flou. */
+  .glass {
+    background: rgb(255 255 255 / 0.88);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* Illustration du héros : on conserve les nœuds qui pulsent, on retire
+     les particules et les impulsions (nombreuses animations simultanées). */
+  .motion-lite {
+    display: none !important;
   }
 }
 

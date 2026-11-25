@@ -1,4 +1,5 @@
 import { getLocale, getTranslations } from "next-intl/server";
+import { getEventLabels } from "@/data/event";
 import { PROGRAMME_END, programme } from "@/data/programme";
 import { getSpeaker } from "@/data/speakers";
 import { contentLang } from "@/i18n/routing";
@@ -9,6 +10,7 @@ import { ProgrammeTimeline, type TimelineItem } from "./programme-timeline";
 export async function Programme() {
   const t = await getTranslations("programme");
   const lang = contentLang(await getLocale());
+  const when = getEventLabels(lang);
 
   const items: TimelineItem[] = programme.map((session, index) => ({
     time: session.time,
@@ -29,7 +31,7 @@ export async function Programme() {
             id="programme-title"
             eyebrow={t("eyebrow")}
             title={t("title")}
-            lead={t("lead")}
+            lead={t("lead", { start: when.startTime, end: when.endTime })}
           />
         </div>
         <Reveal delay={0.1}>

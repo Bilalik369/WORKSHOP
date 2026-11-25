@@ -14,7 +14,6 @@ type Props = { params: Promise<{ locale: string }> };
 
 // La date limite est vérifiée à chaque visite.
 export const dynamic = "force-dynamic";
-
 const FORMAT_ICONS = { oral: Mic, poster: StickyNote, demo: Presentation } as const;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

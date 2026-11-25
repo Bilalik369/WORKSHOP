@@ -1,15 +1,20 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { ArrowRight, CalendarDays, GraduationCap, Lightbulb, MapPin } from "lucide-react";
+import { event, getEventLabels } from "@/data/event";
 import { Link } from "@/i18n/navigation";
+import { contentLang } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { ZelligePattern } from "@/components/shared/decor";
 import { IconCircle, PillBadge } from "@/components/shared/section";
 import { Countdown } from "./countdown";
+import { DateChangeBanner } from "./date-change-banner";
 import { HeroVisual } from "./hero-visual";
 import { SeatsCounter, type SeatSnapshot } from "./seats-counter";
 
 export async function Hero({ seats }: { seats: SeatSnapshot }) {
   const t = await getTranslations("hero");
+  const when = getEventLabels(contentLang(await getLocale()));
+  const tChange = await getTranslations("dateChange");
 
   return (
     <section
@@ -29,7 +34,20 @@ export async function Hero({ seats }: { seats: SeatSnapshot }) {
       />
 
       <div className="relative mx-auto grid w-full max-w-6xl items-center gap-x-8 gap-y-6 px-5 sm:px-8 lg:grid-cols-[1.08fr_0.92fr]">
-        <div className="flex flex-col items-start">
+        <div className="flex min-w-0 flex-col items-start">
+          {event.dateChange.active ? (
+            <DateChangeBanner
+              id={event.dateChange.id}
+              label={tChange("label")}
+              title={tChange("title", { date: when.dateInline })}
+              text={tChange("text", {
+                date: when.dateInline,
+                previous: when.previousDateInline,
+                time: when.time,
+              })}
+              dismissLabel={tChange("dismiss")}
+            />
+          ) : null}
           <div className="animate-rise">
             <PillBadge icon={GraduationCap} className="px-5 py-2 text-[0.82rem]">
               {t("badge")}
@@ -58,9 +76,9 @@ export async function Hero({ seats }: { seats: SeatSnapshot }) {
               <IconCircle icon={CalendarDays} shape="square" />
               <p className="flex flex-col">
                 <span className="text-xl leading-tight font-bold text-navy sm:text-2xl">
-                  {t("date")}
+                  {when.date}
                 </span>
-                <span className="text-[0.95rem] font-medium text-muted">{t("time")}</span>
+                <span className="text-[0.95rem] font-medium text-muted">{when.time}</span>
               </p>
             </li>
             <li className="flex items-center gap-4">
@@ -104,7 +122,7 @@ export async function Hero({ seats }: { seats: SeatSnapshot }) {
           </div>
         </div>
 
-        <div className="relative mx-auto w-full max-w-[25rem] lg:max-w-none">
+        <div className="relative mx-auto w-full max-w-[25rem] min-w-0 lg:max-w-none">
           <HeroVisual
             label={t("visualAlt")}
             className="h-auto w-full drop-shadow-[0_30px_50px_rgb(91_141_239/0.22)] rtl:-scale-x-100"

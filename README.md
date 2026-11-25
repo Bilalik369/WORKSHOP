@@ -2,7 +2,7 @@
 
 Site officiel du workshop organisé par les étudiants du Master « Innovation, Technologies et IA pour l’Ingénierie Pédagogique » — ESEF Beni Mellal, Université Sultan Moulay Slimane.
 
-**Samedi 2 janvier 2027 · 09h30 – 15h30 · ESEF Beni Mellal**
+**Mardi 19 janvier 2027 · 09h30 – 15h30 · ESEF Beni Mellal**
 
 Le site propose :
 
@@ -43,7 +43,7 @@ Le site propose :
 | Base de données, fichiers, connexion admin | Supabase (Postgres, Storage, Auth) |
 | E-mails | Resend |
 | Formulaires | react-hook-form + Zod (validation client **et** serveur) |
-| Hébergement | Vercel |
+| Hébergement | Vercel (fonctions en région `dub1`, Dublin, au plus près de la base) |
 
 ---
 
@@ -187,13 +187,16 @@ Aucun texte n’est écrit en dur dans les composants.
 | --- | --- |
 | Le **programme** (horaires, titres, intervenants) | [`data/programme.ts`](data/programme.ts) |
 | Les **intervenants** (nom, rôle, photo) | [`data/speakers.ts`](data/speakers.ts) |
-| La date, le lien Google Maps, les réseaux sociaux | [`data/site.ts`](data/site.ts) |
+| **La date et les horaires** (un seul endroit pour tout le site) | [`data/event.ts`](data/event.ts) |
+| Le lien Google Maps, les réseaux sociaux, le contact | [`data/site.ts`](data/site.ts) |
 | Tous les textes en français | [`messages/fr.json`](messages/fr.json) |
 | Tous les textes en arabe | [`messages/ar.json`](messages/ar.json) |
 | Les textes des e-mails | [`lib/email/strings.ts`](lib/email/strings.ts) |
 | Les listes de choix (statuts, catégories…) | [`lib/constants.ts`](lib/constants.ts) + libellés dans `messages/*.json` → `options` |
 | Le logo | `public/logo-usms-esef.png` |
 | Les couleurs | bloc `@theme` de [`app/globals.css`](app/globals.css) |
+
+**Changer la date du workshop** : tout part de [`data/event.ts`](data/event.ts). Modifiez `start` et `end` ; la page d’accueil, le compte à rebours, les billets, les e-mails, le fichier agenda et l’image de partage suivent automatiquement. Pour annoncer le changement, renseignez l’ancienne date dans `dateChange.previousStart`, passez `dateChange.active` à `true` (bandeau sur la page d’accueil) et augmentez `icsSequence` de 1 (les agendas mettent à jour l’événement existant). Prévenez ensuite les inscrits depuis l’onglet **Annonce** de l’administration.
 
 **Ajouter la photo d’un intervenant** : déposez l’image (carrée, 400 × 400 px environ) dans `public/speakers/`, puis ajoutez `photo: "/speakers/nom-du-fichier.jpg"` à la personne dans `data/speakers.ts`. Sans photo, un avatar avec ses initiales est affiché.
 
@@ -213,8 +216,20 @@ Adresse : `/admin` (lien discret « Espace organisateurs » en bas du site).
 | **Projets** | Lire chaque proposition, ouvrir le PDF, accepter ou refuser avec un commentaire facultatif (le porteur reçoit un e-mail) |
 | **Statistiques** | Nombre de réservations, taux de remplissage, répartition par statut, par établissement et par canal, état des projets |
 | **Check-in** | Scanner les billets le jour J |
+| **Annonce** | Prévenir les inscrits d’un changement de date (voir ci-dessous) |
 
 Seuls les projets **acceptés** apparaissent dans la section « Projets » du site (mise à jour en une minute au plus).
+
+### Annoncer un changement de date
+
+L’onglet **Annonce** envoie un e-mail aux réservations **confirmées** et en **liste d’attente** (jamais aux réservations annulées). L’e-mail rappelle la nouvelle date, précise que la réservation reste valable (même code, même billet), et contient le lien du billet, le lien du fichier agenda mis à jour et le lien d’annulation.
+
+Avant la première utilisation, exécutez une fois [`supabase/migrations/0002_date_change_notification.sql`](supabase/migrations/0002_date_change_notification.sql) dans l’éditeur SQL de Supabase (il ajoute la colonne `date_change_notified_at`). Les nouvelles installations l’ont déjà via `supabase/setup.sql`.
+
+1. **M’envoyer un test** : l’e-mail part uniquement vers votre adresse, avec des données d’exemple.
+2. **Envoyer l’annonce du changement de date** : une fenêtre affiche le nombre de destinataires et l’aperçu de l’e-mail, puis demande confirmation.
+
+L’envoi se fait par lots de 50 (API « batch » de Resend). Chaque personne prévenue est marquée en base : si vous relancez l’envoi, elle est ignorée. Un lot en échec n’est pas marqué et peut être renvoyé. Rien n’est jamais envoyé automatiquement, ni au déploiement ni autrement.
 
 ---
 
@@ -248,7 +263,7 @@ app/
     opengraph-image.tsx     Image de partage (WhatsApp, Facebook…)
   admin/                    Administration (français uniquement)
     login/                  Connexion par e-mail et mot de passe
-    (dashboard)/            Réservations, projets, statistiques, check-in
+    (dashboard)/            Réservations, projets, statistiques, check-in, annonce
     export/reservations/    Export CSV / Excel
     actions.ts              Actions serveur de l’administration
   actions/                  Actions serveur publiques (réservation, projet)
@@ -260,7 +275,7 @@ components/
   ticket/                   Billet à QR code
   shared/                   Éléments communs (logo, décor, en-têtes)
   ui/                       Composants de base (bouton, champs, accordéon)
-data/                       Programme, intervenants, infos de l’événement
+data/                       Date (event.ts), programme, intervenants, infos
 messages/                   Traductions fr.json et ar.json
 lib/                        Validation, e-mails, sécurité, accès aux données
 supabase/migrations/        Script SQL de la base

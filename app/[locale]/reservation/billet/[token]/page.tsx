@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Ban, CircleCheckBig, Hourglass, SearchX } from "lucide-react";
+import { getEventLabels } from "@/data/event";
 import { Link } from "@/i18n/navigation";
+import { contentLang } from "@/i18n/routing";
 import { getReservationByTicketToken, getWaitlistPosition } from "@/lib/data/reservations";
 import { qrDataUrl } from "@/lib/qr";
 import { Button } from "@/components/ui/button";
@@ -13,7 +15,6 @@ import { TicketCard } from "@/components/ticket/ticket-card";
 type Props = { params: Promise<{ locale: string; token: string }> };
 
 export const dynamic = "force-dynamic";
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "ticket" });
@@ -103,6 +104,7 @@ export default async function TicketPage({ params }: Props) {
   }
 
   const qr = await qrDataUrl(reservation.code);
+  const when = getEventLabels(contentLang(locale));
 
   return (
     <PageShell>
@@ -129,6 +131,8 @@ export default async function TicketPage({ params }: Props) {
           name={`${reservation.prenom} ${reservation.nom}`}
           code={reservation.code}
           qrDataUrl={qr}
+          eventDate={when.date}
+          eventTime={when.time}
         />
       </div>
     </PageShell>

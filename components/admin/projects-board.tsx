@@ -60,7 +60,7 @@ function ProjectCard({ project }: { project: Project }) {
   };
 
   return (
-    <li className="glass rounded-3xl p-5 sm:p-6">
+    <li className="glass min-w-0 rounded-3xl p-5 sm:p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="flex flex-wrap gap-2 text-xs font-semibold">
@@ -77,7 +77,7 @@ function ProjectCard({ project }: { project: Project }) {
               {formatLabel(project.format)}
             </span>
           </p>
-          <h2 className="mt-3 text-xl leading-snug font-bold" dir="auto">
+          <h2 className="mt-3 text-xl leading-snug font-bold break-words" dir="auto">
             {project.titre}
           </h2>
           <p className="mt-1 text-sm text-muted">
@@ -107,14 +107,14 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
       </div>
 
-      <dl className="mt-5 grid gap-x-8 gap-y-4 text-[0.95rem] md:grid-cols-2">
+      <dl className="mt-5 grid min-w-0 gap-x-8 gap-y-4 text-[0.95rem] break-words md:grid-cols-2">
         <div>
           <dt className="text-xs font-semibold tracking-wide text-muted uppercase">Porteur</dt>
           <dd className="mt-1">
             <span className="font-bold text-navy">{project.porteur_nom}</span> ·{" "}
             {project.etablissement}
             <br />
-            <a href={`mailto:${project.porteur_email}`} className="text-navy hover:underline">
+            <a href={`mailto:${project.porteur_email}`} className="break-all text-navy hover:underline">
               {project.porteur_email}
             </a>{" "}
             ·{" "}
@@ -133,7 +133,7 @@ function ProjectCard({ project }: { project: Project }) {
         </div>
         <div className="md:col-span-2">
           <dt className="text-xs font-semibold tracking-wide text-muted uppercase">Technologies</dt>
-          <dd className="mt-1" dir="auto">
+          <dd className="mt-1 break-words" dir="auto">
             {project.technologies}
           </dd>
         </div>
@@ -146,13 +146,13 @@ function ProjectCard({ project }: { project: Project }) {
         <div className="grid gap-4 px-4 md:grid-cols-2">
           <div>
             <h3 className="text-xs font-semibold tracking-wide text-muted uppercase">Problématique</h3>
-            <p className="mt-1 leading-relaxed whitespace-pre-line" dir="auto">
+            <p className="mt-1 leading-relaxed break-words whitespace-pre-line" dir="auto">
               {project.problematique}
             </p>
           </div>
           <div>
             <h3 className="text-xs font-semibold tracking-wide text-muted uppercase">Solution proposée</h3>
-            <p className="mt-1 leading-relaxed whitespace-pre-line" dir="auto">
+            <p className="mt-1 leading-relaxed break-words whitespace-pre-line" dir="auto">
               {project.solution}
             </p>
           </div>

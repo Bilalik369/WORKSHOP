@@ -27,19 +27,32 @@ export const PROJECT_STATUS_LABELS = {
   refused: "Refusé",
 } as const;
 
-const dateTime = new Intl.DateTimeFormat("fr-FR", {
-  dateStyle: "short",
-  timeStyle: "short",
-  timeZone: "Africa/Casablanca",
-});
+/**
+ * Heure du Maroc (UTC+1), calculée sans la base de fuseaux du système :
+ * le serveur et le navigateur n'ont pas toujours la même version de cette
+ * base, ce qui donnait des heures différentes (et un nouveau rendu complet
+ * de la page). Le calcul fixe garantit le même texte des deux côtés.
+ */
+const MOROCCO_OFFSET_MS = 60 * 60 * 1000;
+const pad = (value: number) => String(value).padStart(2, "0");
 
-const timeOnly = new Intl.DateTimeFormat("fr-FR", {
-  timeStyle: "short",
-  timeZone: "Africa/Casablanca",
-});
+function moroccoParts(iso: string) {
+  const date = new Date(new Date(iso).getTime() + MOROCCO_OFFSET_MS);
+  return {
+    day: pad(date.getUTCDate()),
+    month: pad(date.getUTCMonth() + 1),
+    year: date.getUTCFullYear(),
+    time: `${pad(date.getUTCHours())}:${pad(date.getUTCMinutes())}`,
+  };
+}
 
-export const formatDateTime = (iso: string | null | undefined) =>
-  iso ? dateTime.format(new Date(iso)) : "—";
+/** « 20/11/2026 11:00 » */
+export const formatDateTime = (iso: string | null | undefined) => {
+  if (!iso) return "—";
+  const parts = moroccoParts(iso);
+  return `${parts.day}/${parts.month}/${parts.year} ${parts.time}`;
+};
 
+/** « 11:00 » */
 export const formatTime = (iso: string | null | undefined) =>
-  iso ? timeOnly.format(new Date(iso)) : "—";
+  iso ? moroccoParts(iso).time : "—";

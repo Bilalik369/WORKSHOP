@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { site } from "@/data/site";
+import { event } from "@/data/event";
 
-const START = new Date(site.eventStart).getTime();
-const END = new Date(site.eventEnd).getTime();
+const START = new Date(event.start).getTime();
+const END = new Date(event.end).getTime();
 
 type Parts = { days: number; hours: number; minutes: number; seconds: number };
 
@@ -21,7 +21,7 @@ function getParts(now: number): Parts {
 
 const UNITS = ["days", "hours", "minutes", "seconds"] as const;
 
-/** Compte à rebours en direct jusqu'au 2 janvier 2027, 09h30 (heure du Maroc). */
+/** Compte à rebours en direct jusqu'au début du workshop (date : data/event.ts). */
 export function Countdown() {
   const t = useTranslations("countdown");
   // null tant que le composant n'est pas monté : évite tout écart serveur/client.

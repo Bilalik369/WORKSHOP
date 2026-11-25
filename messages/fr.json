@@ -1,0 +1,413 @@
+{
+  "meta": {
+    "title": "L’IA au Service de l’Éducation Marocaine — Workshop · ESEF Beni Mellal",
+    "shortTitle": "Workshop IA & Éducation",
+    "description": "Workshop gratuit le samedi 2 janvier 2027 à l’ESEF Beni Mellal : conférences, projets étudiants et atelier pratique sur l’intelligence artificielle au service de l’éducation marocaine. Réservez votre place.",
+    "ogAlt": "Affiche du workshop « L’Intelligence Artificielle au Service de l’Éducation Marocaine », 2 janvier 2027, ESEF Beni Mellal"
+  },
+  "common": {
+    "skipToContent": "Aller au contenu",
+    "backHome": "Retour à l’accueil",
+    "optional": "facultatif",
+    "required": "obligatoire",
+    "loading": "Chargement…",
+    "logoAlt": "Université Sultan Moulay Slimane — École Supérieure d’Éducation et de Formation",
+    "tagline": "Ensemble pour une éducation augmentée"
+  },
+  "nav": {
+    "label": "Navigation principale",
+    "programme": "Programme",
+    "intervenants": "Intervenants",
+    "projets": "Projets",
+    "infos": "Infos",
+    "reserve": "Réserver ma place",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
+    "switchTo": "العربية",
+    "switchLabel": "Passer le site en arabe"
+  },
+  "hero": {
+    "badge": "Workshop",
+    "titleLine1": "L’Intelligence",
+    "titleLine2": "Artificielle",
+    "titleLine3": "au Service de",
+    "titleLine4": "l’Éducation",
+    "titleLine5": "Marocaine",
+    "date": "Samedi 2 janvier 2027",
+    "time": "09h30 – 15h30",
+    "venue": "ESEF — Beni Mellal",
+    "venueFull": "École Supérieure d’Éducation et de Formation",
+    "venueCity": "Beni Mellal, Maroc",
+    "ctaReserve": "Réserver ma place",
+    "ctaProject": "Proposer un projet",
+    "free": "Entrée gratuite · Attestation de participation",
+    "visualAlt": "Illustration : un profil humain au cerveau en réseau de neurones, relié par des circuits lumineux à un livre ouvert"
+  },
+  "countdown": {
+    "label": "Début du workshop dans",
+    "days": "jours",
+    "hours": "heures",
+    "minutes": "minutes",
+    "seconds": "secondes",
+    "live": "Le workshop est en cours !",
+    "ended": "Le workshop est terminé. Merci à toutes et à tous !"
+  },
+  "seats": {
+    "remaining": "{count, plural, =0 {Aucune place restante} =1 {# place restante} other {# places restantes}}",
+    "capacity": "sur {capacity}",
+    "full": "Complet — liste d’attente ouverte",
+    "live": "Mise à jour en direct"
+  },
+  "pillars": {
+    "eyebrow": "Nos 3 piliers",
+    "title": "Une journée, trois engagements",
+    "items": {
+      "education": {
+        "title": "Éducation innovante",
+        "description": "Repenser les pratiques pédagogiques avec des approches actives, centrées sur l’apprenant et ancrées dans la réalité de la classe marocaine."
+      },
+      "ia": {
+        "title": "Intelligence artificielle",
+        "description": "Comprendre ce que l’IA sait faire — et ce qu’elle ne sait pas faire — pour l’utiliser comme un outil au service de l’enseignant, jamais à sa place."
+      },
+      "impact": {
+        "title": "Impact positif",
+        "description": "Privilégier des solutions utiles, éthiques et inclusives, qui réduisent les inégalités et accompagnent la réussite de chaque élève."
+      }
+    }
+  },
+  "about": {
+    "eyebrow": "À propos",
+    "title": "Mettre l’IA au service de celles et ceux qui enseignent",
+    "lead": "Organisé par les étudiants du Master « Innovation, Technologies et IA pour l’Ingénierie Pédagogique » de l’ESEF Beni Mellal, ce workshop réunit, le temps d’une journée, les acteurs de l’éducation autour d’une question simple : comment l’intelligence artificielle peut-elle améliorer concrètement l’apprentissage au Maroc ?",
+    "objectivesTitle": "Les objectifs",
+    "objectives": {
+      "comprendre": {
+        "title": "Comprendre",
+        "text": "Démystifier l’IA et ses notions clés, sans jargon inutile."
+      },
+      "decouvrir": {
+        "title": "Découvrir",
+        "text": "Explorer des projets concrets portés par des étudiants et des professionnels."
+      },
+      "pratiquer": {
+        "title": "Pratiquer",
+        "text": "Prendre en main des outils d’IA lors d’un mini-atelier guidé."
+      },
+      "connecter": {
+        "title": "Connecter",
+        "text": "Rencontrer une communauté engagée pour une éducation augmentée."
+      }
+    },
+    "audienceTitle": "À qui s’adresse le workshop ?",
+    "audiences": {
+      "etudiants": {
+        "title": "Étudiants",
+        "text": "De l’ESEF et d’autres établissements, curieux de l’IA et de ses usages pédagogiques."
+      },
+      "enseignants": {
+        "title": "Enseignants",
+        "text": "Du primaire au supérieur, à la recherche de pratiques et d’outils applicables en classe."
+      },
+      "inspecteurs": {
+        "title": "Inspecteurs",
+        "text": "Et cadres pédagogiques qui accompagnent la transformation numérique de l’école."
+      },
+      "professionnels": {
+        "title": "Professionnels EdTech",
+        "text": "Entrepreneurs, développeurs et concepteurs de solutions éducatives."
+      }
+    }
+  },
+  "programme": {
+    "eyebrow": "Programme",
+    "title": "Le déroulé de la journée",
+    "lead": "De 09h30 à 15h30 : conférences, projets, table ronde et atelier pratique.",
+    "filterLabel": "Filtrer le programme",
+    "filters": {
+      "all": "Tout",
+      "matin": "Matin",
+      "apres-midi": "Après-midi"
+    },
+    "tbc": "À confirmer",
+    "timeRange": "De {start} à {end}",
+    "types": {
+      "ceremonie": "Cérémonie",
+      "conference": "Conférence",
+      "projet": "Projet",
+      "pause": "Pause",
+      "echange": "Échange",
+      "atelier": "Atelier",
+      "cloture": "Clôture"
+    },
+    "disclaimer": "Programme susceptible d’être ajusté. Les horaires sont indiqués en heure du Maroc."
+  },
+  "speakers": {
+    "eyebrow": "Intervenants",
+    "title": "Celles et ceux qui prendront la parole",
+    "lead": "Enseignants-chercheurs, entrepreneurs et étudiants du Master partagent leur expérience et leurs projets."
+  },
+  "projects": {
+    "eyebrow": "Projets",
+    "title": "Les projets présentés",
+    "lead": "Des idées, des prototypes et des solutions finalisées qui mettent l’IA au service de l’apprentissage.",
+    "emptyTitle": "Les projets sélectionnés seront bientôt dévoilés",
+    "emptyText": "Vous travaillez sur une idée, un prototype ou une solution autour de l’IA et de l’éducation ? Proposez-la : les projets retenus seront présentés le jour du workshop.",
+    "cta": "Proposer un projet",
+    "deadline": "Dépôt des projets jusqu’au {date}",
+    "closed": "Le dépôt des projets est clos",
+    "team": "Équipe",
+    "by": "Porté par {name}"
+  },
+  "infos": {
+    "eyebrow": "Infos pratiques",
+    "title": "Tout ce qu’il faut savoir avant de venir",
+    "whenTitle": "Date et horaires",
+    "whenText": "Samedi 2 janvier 2027, de 09h30 à 15h30. Accueil des participants dès 09h00.",
+    "whereTitle": "Adresse",
+    "whereText": "École Supérieure d’Éducation et de Formation (ESEF), Université Sultan Moulay Slimane, Beni Mellal, Maroc.",
+    "bringTitle": "À apporter",
+    "bring": {
+      "appareil": "Un ordinateur portable ou un smartphone chargé, pour le mini-atelier pratique.",
+      "billet": "Votre billet avec son QR code, sur votre téléphone ou imprimé.",
+      "curiosite": "Votre curiosité et vos questions !"
+    },
+    "certificateTitle": "Attestation de participation",
+    "certificateText": "Une attestation est remise en fin de journée aux participants présents, sur la base du pointage effectué à l’entrée.",
+    "contactTitle": "Contact",
+    "contactText": "Une question ? Écrivez à l’équipe d’organisation :",
+    "mapTitle": "Carte : ESEF Beni Mellal",
+    "mapShow": "Afficher la carte",
+    "mapNotice": "La carte est fournie par Google Maps.",
+    "mapOpen": "Ouvrir dans Google Maps"
+  },
+  "faq": {
+    "eyebrow": "FAQ",
+    "title": "Questions fréquentes",
+    "items": {
+      "gratuit": {
+        "q": "Est-ce gratuit ?",
+        "a": "Oui. La participation au workshop est entièrement gratuite, pauses comprises. La réservation en ligne est toutefois obligatoire, car le nombre de places est limité."
+      },
+      "public": {
+        "q": "Qui peut participer ?",
+        "a": "Le workshop est ouvert à toutes et à tous : étudiants de l’ESEF ou d’autres établissements, enseignants, inspecteurs, professionnels de l’EdTech et toute personne intéressée par l’IA et l’éducation. Aucun prérequis technique n’est nécessaire."
+      },
+      "attestation": {
+        "q": "Aurai-je une attestation ?",
+        "a": "Oui. Une attestation de participation est remise en fin de journée aux personnes présentes. Pensez à faire scanner votre billet à l’entrée : c’est ce pointage qui fait foi."
+      },
+      "projet": {
+        "q": "Comment proposer un projet ?",
+        "a": "Remplissez le formulaire « Proposer un projet » avant la date limite, en décrivant la problématique, votre solution et son état d’avancement. Le comité d’organisation étudie chaque proposition et vous répond par e-mail. Les projets acceptés sont présentés le jour J (présentation orale, poster ou démo)."
+      },
+      "annulation": {
+        "q": "Que faire si je ne peux plus venir ?",
+        "a": "Annulez votre réservation grâce au lien présent dans votre e-mail de confirmation. Votre place sera automatiquement proposée à la première personne de la liste d’attente."
+      }
+    }
+  },
+  "cta": {
+    "title": "Prêt à imaginer l’école de demain ?",
+    "text": "Les places sont limitées. Réservez la vôtre en moins de deux minutes."
+  },
+  "footer": {
+    "organizedBy": "Organisé par les étudiants du Master « Innovation, Technologies et IA pour l’Ingénierie Pédagogique »",
+    "host": "ESEF Beni Mellal — Université Sultan Moulay Slimane",
+    "navTitle": "Le workshop",
+    "followTitle": "Suivez-nous",
+    "participateTitle": "Participer",
+    "rights": "© 2027 Workshop IA & Éducation — ESEF Beni Mellal.",
+    "admin": "Espace organisateurs",
+    "socials": {
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "linkedin": "LinkedIn",
+      "whatsapp": "WhatsApp"
+    }
+  },
+  "options": {
+    "placeholder": "Sélectionnez…",
+    "statut": {
+      "etudiant_esef": "Étudiant·e ESEF",
+      "etudiant_autre": "Étudiant·e d’un autre établissement",
+      "enseignant": "Enseignant·e",
+      "inspecteur": "Inspecteur·rice",
+      "professionnel": "Professionnel·le",
+      "autre": "Autre"
+    },
+    "source": {
+      "whatsapp": "WhatsApp",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "affiche": "Affiche à l’ESEF",
+      "enseignant": "Un·e enseignant·e",
+      "bouche_a_oreille": "Un·e ami·e ou un·e collègue",
+      "autre": "Autre"
+    },
+    "categorie": {
+      "apprentissage_personnalise": "IA & apprentissage personnalisé",
+      "evaluation_feedback": "Évaluation & feedback",
+      "accessibilite_inclusion": "Accessibilité & inclusion",
+      "gestion_orientation": "Gestion & orientation scolaire",
+      "ressources_numeriques": "Ressources pédagogiques numériques",
+      "autre": "Autre"
+    },
+    "avancement": {
+      "idee": "Idée",
+      "prototype": "Prototype",
+      "finalise": "Projet finalisé"
+    },
+    "format": {
+      "oral": "Présentation orale (5 min)",
+      "poster": "Poster",
+      "demo": "Démo"
+    }
+  },
+  "reservation": {
+    "metaTitle": "Réserver ma place",
+    "eyebrow": "Réservation",
+    "title": "Réservez votre place",
+    "lead": "Gratuit, en moins de deux minutes. Vous recevrez votre billet avec QR code par e-mail.",
+    "waitlistTitle": "Rejoignez la liste d’attente",
+    "waitlistLead": "Toutes les places ont été réservées. Inscrivez-vous sur la liste d’attente : dès qu’une place se libère, elle est attribuée automatiquement dans l’ordre d’inscription et vous êtes prévenu·e par e-mail.",
+    "sectionIdentity": "Vos coordonnées",
+    "sectionProfile": "Votre profil",
+    "fields": {
+      "nom": "Nom",
+      "prenom": "Prénom",
+      "email": "E-mail",
+      "emailHint": "Votre billet sera envoyé à cette adresse.",
+      "telephone": "Téléphone",
+      "telephoneHint": "Format marocain : 06 12 34 56 78 ou +212 6 12 34 56 78",
+      "statut": "Statut",
+      "etablissement": "Établissement",
+      "etablissementPlaceholder": "Ex. : ESEF Beni Mellal",
+      "filiere": "Filière ou niveau",
+      "filierePlaceholder": "Ex. : Master ITIAIP, S1",
+      "source": "Comment avez-vous connu le workshop ?",
+      "consent": "J’accepte que mes données soient utilisées uniquement pour l’organisation de ce workshop (billet, pointage, attestation). Elles ne seront ni cédées ni utilisées à d’autres fins."
+    },
+    "submit": "Confirmer ma réservation",
+    "submitWaitlist": "Rejoindre la liste d’attente",
+    "submitting": "Envoi en cours…",
+    "summaryTitle": "Récapitulatif",
+    "privacyNote": "Vous pourrez annuler à tout moment grâce au lien présent dans l’e-mail de confirmation."
+  },
+  "ticket": {
+    "metaTitle": "Mon billet",
+    "confirmedEyebrow": "Réservation confirmée",
+    "confirmedTitle": "C’est noté, {prenom} ! Votre place est réservée.",
+    "confirmedLead": "Voici votre billet. Présentez ce QR code à l’entrée le jour du workshop. Un e-mail de confirmation vient de vous être envoyé.",
+    "waitlistEyebrow": "Liste d’attente",
+    "waitlistTitle": "Vous êtes sur la liste d’attente, {prenom}.",
+    "waitlistLead": "Toutes les places sont prises pour le moment. Dès qu’une place se libère, elle vous est attribuée automatiquement selon l’ordre d’inscription et vous recevez votre billet par e-mail.",
+    "waitlistPosition": "Votre position : {position}",
+    "cancelledTitle": "Cette réservation a été annulée",
+    "cancelledLead": "Ce billet n’est plus valable. Vous pouvez effectuer une nouvelle réservation si des places sont encore disponibles.",
+    "notFoundTitle": "Billet introuvable",
+    "notFoundLead": "Ce lien n’est pas valide. Vérifiez le lien reçu par e-mail ou effectuez une nouvelle réservation.",
+    "cardTitle": "Billet d’entrée",
+    "holder": "Participant·e",
+    "code": "Code de réservation",
+    "date": "Date",
+    "venue": "Lieu",
+    "qrAlt": "QR code du billet {code}",
+    "downloadPng": "Télécharger en PNG",
+    "downloadPdf": "Télécharger en PDF",
+    "addToCalendar": "Ajouter à mon agenda",
+    "emailNotice": "Vous n’avez pas reçu l’e-mail ? Vérifiez vos courriers indésirables, puis conservez cette page ou téléchargez votre billet.",
+    "cancelLink": "Je ne peux plus venir : annuler ma réservation",
+    "newReservation": "Faire une nouvelle réservation"
+  },
+  "cancel": {
+    "metaTitle": "Annuler ma réservation",
+    "title": "Annuler votre réservation ?",
+    "lead": "Réservation {code} au nom de {name}. Votre place sera libérée et proposée à la première personne de la liste d’attente. Cette action est définitive.",
+    "confirm": "Oui, annuler ma réservation",
+    "keep": "Non, je garde ma place",
+    "pending": "Annulation en cours…",
+    "doneTitle": "Votre réservation est annulée",
+    "doneLead": "Merci de nous avoir prévenus : votre place profitera à une autre personne. Nous espérons vous voir lors d’un prochain événement.",
+    "alreadyTitle": "Cette réservation est déjà annulée",
+    "alreadyLead": "Aucune action n’est nécessaire.",
+    "notFoundTitle": "Lien d’annulation invalide",
+    "notFoundLead": "Ce lien n’existe pas ou a expiré. Vérifiez le lien reçu par e-mail."
+  },
+  "project": {
+    "metaTitle": "Proposer un projet",
+    "eyebrow": "Appel à projets",
+    "title": "Proposez votre projet",
+    "lead": "Idée, prototype ou solution finalisée : présentez votre projet autour de l’IA et de l’éducation. Les projets retenus seront présentés le jour du workshop.",
+    "deadline": "Date limite de dépôt : {date}",
+    "closedTitle": "Le dépôt des projets est clos",
+    "closedLead": "La date limite ({date}) est dépassée. Merci à toutes les équipes qui ont proposé un projet ! Vous pouvez toujours réserver votre place pour assister au workshop.",
+    "sections": {
+      "porteur": "Porteur principal",
+      "equipe": "Équipe",
+      "projet": "Le projet",
+      "presentation": "Présentation"
+    },
+    "fields": {
+      "porteur_nom": "Nom complet",
+      "porteur_email": "E-mail",
+      "porteur_emailHint": "La réponse du comité sera envoyée à cette adresse.",
+      "porteur_telephone": "Téléphone",
+      "etablissement": "Établissement",
+      "members": "Membres de l’équipe",
+      "membersHint": "Jusqu’à {max} membres, en plus du porteur principal.",
+      "memberLabel": "Membre {index}",
+      "memberPlaceholder": "Nom complet",
+      "addMember": "Ajouter un membre",
+      "removeMember": "Retirer le membre {index}",
+      "titre": "Titre du projet",
+      "categorie": "Catégorie",
+      "problematique": "Problématique",
+      "problematiqueHint": "Quel problème éducatif cherchez-vous à résoudre ? Pour qui ?",
+      "solution": "Solution proposée",
+      "solutionHint": "Décrivez votre solution et la place qu’y occupe l’IA. Ce texte pourra être affiché sur le site si le projet est accepté.",
+      "technologies": "Technologies utilisées",
+      "technologiesPlaceholder": "Ex. : Python, scikit-learn, Next.js…",
+      "avancement": "État d’avancement",
+      "lien": "Lien de démo ou dépôt GitHub",
+      "lienPlaceholder": "https://",
+      "pdf": "Support de présentation ou résumé d’une page",
+      "pdfHint": "PDF uniquement, 10 Mo maximum.",
+      "pdfChoose": "Choisir un fichier PDF",
+      "pdfRemove": "Retirer le fichier",
+      "format": "Format souhaité",
+      "consent": "J’accepte que les informations fournies soient utilisées pour l’étude de ma proposition et, si le projet est accepté, que son titre, son résumé et les noms des membres de l’équipe soient publiés sur le site du workshop."
+    },
+    "submit": "Envoyer ma proposition",
+    "submitting": "Envoi en cours…",
+    "uploading": "Envoi du fichier…",
+    "successTitle": "Proposition bien reçue !",
+    "successLead": "Merci {name}. Votre projet « {titre} » a été transmis au comité d’organisation. Un accusé de réception vient de vous être envoyé, et vous serez informé·e de la décision par e-mail.",
+    "successReserve": "Pensez aussi à réserver votre place pour le workshop.",
+    "another": "Proposer un autre projet"
+  },
+  "errors": {
+    "required": "Ce champ est obligatoire.",
+    "tooShort": "Ce texte est trop court.",
+    "tooLong": "Ce texte est trop long.",
+    "email": "Saisissez une adresse e-mail valide.",
+    "phone": "Saisissez un numéro marocain valide (06…, 07… ou +212…).",
+    "url": "Saisissez un lien valide commençant par https://.",
+    "select": "Sélectionnez une option.",
+    "consent": "Votre accord est nécessaire pour continuer.",
+    "pdfType": "Le fichier doit être au format PDF.",
+    "pdfSize": "Le fichier dépasse 10 Mo.",
+    "maxMembers": "L’équipe ne peut pas dépasser 5 membres.",
+    "emailTaken": "Une réservation existe déjà avec cette adresse e-mail. Consultez votre boîte de réception (et vos courriers indésirables) pour retrouver votre billet.",
+    "rateLimit": "Trop de tentatives. Patientez quelques minutes avant de réessayer.",
+    "deadline": "Le dépôt des projets est clos.",
+    "upload": "L’envoi du fichier a échoué. Vérifiez votre connexion et réessayez.",
+    "notConfigured": "Le service n’est pas encore configuré. Réessayez un peu plus tard.",
+    "generic": "Une erreur est survenue. Réessayez dans un instant.",
+    "formInvalid": "Certains champs sont à corriger."
+  },
+  "notFound": {
+    "title": "Page introuvable",
+    "text": "La page que vous cherchez n’existe pas ou a été déplacée."
+  }
+}
